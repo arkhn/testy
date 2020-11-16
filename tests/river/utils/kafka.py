@@ -1,10 +1,10 @@
 from confluent_kafka import KafkaException, KafkaError
 from confluent_kafka import Consumer
 
-from logging import getLogger
+import logging
 
 
-logger = getLogger("consumer")
+logger = logging.getLogger(__file__)
 
 
 class EventConsumer:

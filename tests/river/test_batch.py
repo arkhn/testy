@@ -8,6 +8,10 @@ from .utils.kafka import EventConsumer
 
 from .. import settings
 
+import logging
+
+logger = logging.getLogger(__file__)
+
 BATCH_SIZE_TOPIC = "batch_size"
 LOAD_TOPIC = "load"
 
@@ -26,7 +30,7 @@ def handle_kafka_error(err):
 
 
 def test_batch_single_row(pyrog_resources):
-    print("START")
+    logger.info("Start")
 
     # declare kafka consumer of "load" events
     consumer = EventConsumer(
