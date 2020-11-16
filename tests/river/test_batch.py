@@ -5,8 +5,8 @@ import pytest
 from fhirstore import FHIRStore
 
 from .utils.kafka import EventConsumer
-from .conftest import KAFKA_BOOTSTRAP_SERVERS_EXTERNAL, REMOTE_URL
 
+from .. import settings
 
 BATCH_SIZE_TOPIC = "batch_size"
 LOAD_TOPIC = "load"
@@ -30,7 +30,7 @@ def test_batch_single_row(pyrog_resources):
 
     # declare kafka consumer of "load" events
     consumer = EventConsumer(
-        broker=KAFKA_BOOTSTRAP_SERVERS_EXTERNAL,
+        broker=settings.KAFKA_BOOTSTRAP_SERVERS_EXTERNAL,
         topics=LOAD_TOPIC,
         group_id="test_batch_single_row",
         manage_error=handle_kafka_error,
@@ -42,7 +42,7 @@ def test_batch_single_row(pyrog_resources):
         consumer.run_consumer(event_count=msg_value["size"], poll_timeout=15)
 
     batch_size_consumer = EventConsumer(
-        broker=KAFKA_BOOTSTRAP_SERVERS_EXTERNAL,
+        broker=settings.KAFKA_BOOTSTRAP_SERVERS_EXTERNAL,
         topics=BATCH_SIZE_TOPIC,
         group_id="test_batch_size",
         manage_error=handle_kafka_error,
@@ -52,7 +52,7 @@ def test_batch_single_row(pyrog_resources):
     for resource in pyrog_resources:
         try:
             # send a batch request
-            response = requests.post(f"{REMOTE_URL}/river/batch", json={"resources": [resource]})
+            response = requests.post(f"{settings.REMOTE_URL}/river/batch", json={"resources": [resource]})
         except requests.exceptions.ConnectionError:
             raise Exception("Could not connect to the api service")
 
