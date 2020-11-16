@@ -1,12 +1,12 @@
 import json
-import requests
+
 import pytest
+import requests
 
 from fhirstore import FHIRStore
 
-from .utils.kafka import EventConsumer
 from .. import settings
-
+from .utils.kafka import EventConsumer
 
 BATCH_SIZE_TOPIC = "batch_size"
 LOAD_TOPIC = "load"
@@ -23,7 +23,6 @@ def store(fhirstore: FHIRStore):
 
 def handle_kafka_error(err):
     raise err
-
 
 
 def send_batch(resource):
@@ -50,11 +49,15 @@ def send_batch(resource):
 
     try:
         # send a batch request
-        response = requests.post(f"{settings.REMOTE_URL}/river/batch", json={"resources": [resource]})
+        response = requests.post(
+            f"{settings.REMOTE_URL}/river/batch", json={"resources": [resource]}
+        )
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
 
-    assert response.status_code == 200, f"api POST /batch returned an error: {response.text}"
+    assert (
+        response.status_code == 200
+    ), f"api POST /batch returned an error: {response.text}"
 
     print("Waiting for a batch_size event...")
     batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)

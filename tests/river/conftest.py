@@ -1,12 +1,13 @@
 import json
-import pytest
 
+import pytest
 from pymongo import MongoClient
+
 from fhirstore import FHIRStore
 
+from .. import settings
 from .utils.pyrog import PyrogClient
 
-from .. import settings
 
 @pytest.fixture(scope="session")
 def fhirstore() -> FHIRStore:
@@ -18,19 +19,22 @@ def fhirstore() -> FHIRStore:
     )
     return FHIRStore(mongo_client, None, settings.FHIRSTORE_DATABASE)
 
+
 @pytest.fixture(scope="session")
 def pyrog_resources():
-    with open('./river/data/mapping.json') as mapping_file:
+    with open("./river/data/mapping.json") as mapping_file:
         mapping = json.load(mapping_file)
-    with open('./river/data/credentials.json') as credentials_file:
+    with open("./river/data/credentials.json") as credentials_file:
         credentials = json.load(credentials_file)
 
     pyrog_client = PyrogClient(f"{settings.REMOTE_URL}/pyrog-api")
     try:
         pyrog_client.create_template(mapping["template"]["name"])
-    except Exception as e:
+    except Exception:
         pass
-    source_id = pyrog_client.create_source(mapping["template"]["name"], mapping["source"]["name"], json.dumps(mapping))
+    source_id = pyrog_client.create_source(
+        mapping["template"]["name"], mapping["source"]["name"], json.dumps(mapping)
+    )
     pyrog_client.upsert_credentials(source_id, credentials)
 
     # yield the inserted resources
@@ -38,4 +42,3 @@ def pyrog_resources():
 
     # cleanup the created source
     pyrog_client.delete_source(source_id)
-

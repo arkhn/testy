@@ -59,6 +59,7 @@ sources_query = """
     }
 """
 
+
 class PyrogClient:
     def __init__(self, url, auth_header=None):
         self.url = url
@@ -95,23 +96,38 @@ class PyrogClient:
             if status_code == 403:
                 raise Exception("You don't have the rights to perform this action.")
             raise Exception(
-                f"GraphQL query failed with errors: {[err['message'] for err in body['errors']]}."
+                "GraphQL query failed with errors: "
+                f"{[err['message'] for err in body['errors']]}."
             )
 
         return body
 
     def delete_source(self, source_id):
-        return self.run_graphql_query(delete_source_mutation, variables={"sourceId": source_id})
+        return self.run_graphql_query(
+            delete_source_mutation, variables={"sourceId": source_id}
+        )
 
     def create_template(self, name):
-        return self.run_graphql_query(create_template_mutation, variables={"name": name})
+        return self.run_graphql_query(
+            create_template_mutation, variables={"name": name}
+        )
 
     def create_source(self, template_name, source_name, mapping):
-        source_resp = self.run_graphql_query(create_source_mutation, variables={"templateName": template_name, "name": source_name, "mapping": mapping})
+        source_resp = self.run_graphql_query(
+            create_source_mutation,
+            variables={
+                "templateName": template_name,
+                "name": source_name,
+                "mapping": mapping,
+            },
+        )
         return source_resp["data"]["createSource"]["id"]
 
     def upsert_credentials(self, source_id: str, credentials):
-        return self.run_graphql_query(upsert_credentials_mutation, variables={**credentials, "sourceId": source_id})
+        return self.run_graphql_query(
+            upsert_credentials_mutation,
+            variables={**credentials, "sourceId": source_id},
+        )
 
     def get_resources(self):
         sources_resp = self.run_graphql_query(sources_query)

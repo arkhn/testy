@@ -1,8 +1,6 @@
-from confluent_kafka import KafkaException, KafkaError
-from confluent_kafka import Consumer
-
 import logging
 
+from confluent_kafka import Consumer, KafkaError, KafkaException
 
 logger = logging.getLogger(__file__)
 
@@ -19,7 +17,7 @@ class EventConsumer:
     ):
         """
         Instantiate the class and create the consumer object
-        :param broker: host[:port]’ string (or list of ‘host[:port]’ strings) that
+        :param broker: ’host[:port]’ string (or list of ‘host[:port]’ strings) that
             the consumer should contact to bootstrap initial cluster metadata
         :param topics: string or list of strings corresponding to the topics to listen
         :param group_id: string
