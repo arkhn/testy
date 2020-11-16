@@ -5,7 +5,6 @@ import pytest
 from fhirstore import FHIRStore
 
 from .utils.kafka import EventConsumer
-from .utils.pyrog import PyrogClient
 from .. import settings
 
 
