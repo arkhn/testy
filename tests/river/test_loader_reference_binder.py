@@ -4,8 +4,8 @@ import pytest
 
 from fhirstore import FHIRStore
 
-from .kafka_consumer import EventConsumer
-from .pyrog_client import PyrogClient
+from .utils.kafka import EventConsumer
+from .utils.pyrog import PyrogClient
 from .conftest import KAFKA_BOOTSTRAP_SERVERS_EXTERNAL, REMOTE_URL
 
 

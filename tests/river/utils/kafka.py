@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from confluent_kafka import KafkaException, KafkaError
 from confluent_kafka import Consumer
 

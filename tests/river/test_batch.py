@@ -4,7 +4,7 @@ import pytest
 
 from fhirstore import FHIRStore
 
-from .kafka_consumer import EventConsumer
+from .utils.kafka import EventConsumer
 from .conftest import KAFKA_BOOTSTRAP_SERVERS_EXTERNAL, REMOTE_URL
 
 

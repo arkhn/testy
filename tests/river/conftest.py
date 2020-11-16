@@ -5,7 +5,7 @@ import pytest
 from pymongo import MongoClient
 from fhirstore import FHIRStore
 
-from .pyrog_client import PyrogClient
+from .utils.pyrog import PyrogClient
 
 FHIRSTORE_HOST = os.getenv("FHIRSTORE_HOST")
 if not FHIRSTORE_HOST:
@@ -48,9 +48,9 @@ def fhirstore() -> FHIRStore:
 
 @pytest.fixture(scope="session")
 def pyrog_resources():
-    with open('./river/fixtures/mapping.json') as mapping_file:
+    with open('./river/data/mapping.json') as mapping_file:
         mapping = json.load(mapping_file)
-    with open('./river/fixtures/credentials.json') as credentials_file:
+    with open('./river/data/credentials.json') as credentials_file:
         credentials = json.load(credentials_file)
 
     pyrog_client = PyrogClient(f"{REMOTE_URL}/pyrog-api")
