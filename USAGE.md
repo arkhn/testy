@@ -13,6 +13,21 @@
     # Install requirements
     pip install -r requirements.txt
 
-## Running the tests
+## Quickstart
 
-    REMOTE_URL=http[s]://<MY.MACHINE.IP.OR.HOSTNAME> ./entrypoint.sh
+### Setup the environment
+
+    FHIRSTORE_PASSWORD=MY_LITTLE_SECRET source setup.sh HOST_IP
+
+where:
+
+* `MY_LITTLE_SECRET` is the mongo password
+* `HOST_IP` is the remote host ip or fqdn
+
+### Run the tests
+
+    pytest -svv
+
+### Teardown the environment
+
+    ./teardown.sh
