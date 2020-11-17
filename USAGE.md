@@ -17,12 +17,13 @@
 
 ### Setup the environment
 
-    FHIRSTORE_PASSWORD=MY_LITTLE_SECRET source setup.sh HOST_IP
+    FHIRSTORE_PASSWORD=MY_LITTLE_SECRET source setup.sh HOST_IP SSH_IDENTITY_FILE
 
 where:
 
 * `MY_LITTLE_SECRET` is the mongo password
 * `HOST_IP` is the remote host ip or fqdn
+* `SSH_IDENTITY_FILE` is the private ssh key listed in the remote `~/.ssh/authorized_keys`
 
 ### Run the tests
 
