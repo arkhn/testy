@@ -56,7 +56,7 @@ def test_batch_single_row(pyrog_resources):
         try:
             # send a batch request
             response = requests.post(
-                f"http://{settings.RIVER_API_HOST}/batch",
+                f"{settings.RIVER_API_URL}/batch",
                 json={"resources": [resource]},
             )
         except requests.exceptions.ConnectionError:

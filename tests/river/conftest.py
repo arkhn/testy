@@ -30,7 +30,7 @@ def pyrog_resources():
     with open(DATA_DIR / "credentials.json") as credentials_file:
         credentials = json.load(credentials_file)
 
-    pyrog_client = PyrogClient(f"http://{settings.PYROG_API_HOST}")
+    pyrog_client = PyrogClient(settings.PYROG_API_URL)
     try:
         pyrog_client.create_template(mapping["template"]["name"])
     except Exception:

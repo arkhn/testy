@@ -50,7 +50,7 @@ def send_batch(resource):
     try:
         # send a batch request
         response = requests.post(
-            f"http://{settings.RIVER_API_HOST}/batch", json={"resources": [resource]}
+            f"http://{settings.RIVER_API_URL}/batch", json={"resources": [resource]}
         )
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
