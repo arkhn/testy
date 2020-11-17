@@ -6,10 +6,15 @@ set -e
 # Trace execution
 [[ "${DEBUG}" ]] && set -x
 
+function clean() {
+    set +e
+    set +x
+}
+
 if [[ -z "${FHIRSTORE_PASSWORD}" ]]; then
     echo "Please provide the fhirstore password like this:"
     echo "$ FHIRSTORE_PASSWORD=... source setup.sh HOST_IP"
-    return
+    clean && return
 fi
 
 HOST="$1"
@@ -30,3 +35,5 @@ export FHIRSTORE_HOST=localhost
 export FHIRSTORE_PORT=27017
 export FHIRSTORE_DATABASE=fhirstore
 export FHIRSTORE_USER=arkhn
+
+clean
