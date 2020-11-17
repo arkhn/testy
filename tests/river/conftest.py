@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 from pymongo import MongoClient
@@ -7,6 +8,8 @@ from fhirstore import FHIRStore
 
 from .. import settings
 from .utils.pyrog import PyrogClient
+
+DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
 @pytest.fixture(scope="session")
@@ -22,9 +25,9 @@ def fhirstore() -> FHIRStore:
 
 @pytest.fixture(scope="session")
 def pyrog_resources():
-    with open("./river/data/mapping.json") as mapping_file:
+    with open(DATA_DIR / "mapping.json") as mapping_file:
         mapping = json.load(mapping_file)
-    with open("./river/data/credentials.json") as credentials_file:
+    with open(DATA_DIR / "credentials.json") as credentials_file:
         credentials = json.load(credentials_file)
 
     pyrog_client = PyrogClient(f"{settings.REMOTE_URL}/pyrog-api")
