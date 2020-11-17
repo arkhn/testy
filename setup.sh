@@ -10,11 +10,12 @@ function clean() {
     set +e
     set +x
 }
+trap clean SIGINT SIGQUIT SIGKILL
 
 if [[ -z "${FHIRSTORE_PASSWORD}" ]]; then
     echo "Please provide the fhirstore password like this:"
     echo "$ FHIRSTORE_PASSWORD=... source setup.sh HOST_IP SSH_IDENTITY_FILE"
-    clean && return
+    return
 fi
 
 HOST="$1"
@@ -24,10 +25,13 @@ MONGO_PRIVATE_IP=$(ssh -o IdentityFile="${SSH_IDENTITY_FILE}" root@"${HOST}" 'do
 KAFKA_PRIVATE_IP=$(ssh -o IdentityFile="${SSH_IDENTITY_FILE}" root@"${HOST}" 'docker inspect --format "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}" $(docker ps -q --filter "label=com.docker.compose.service=kafka")')
 
 ssh -o IdentityFile="${SSH_IDENTITY_FILE}" \
-    -fN \
+    -N \
     -L localhost:27017:"${MONGO_PRIVATE_IP}":27017 root@"${HOST}" \
-    -L localhost:9093:"${KAFKA_PRIVATE_IP}":9093 root@"${HOST}"
-export TESTY_TUNNEL_PID="$!"
+    -L localhost:9093:"${KAFKA_PRIVATE_IP}":9093 root@"${HOST}" \
+    & # Put to background
+
+TTY=$(tty)
+export TESTY_TUNNEL_PID=$(pgrep -t "${TTY#/dev/}" ssh)
 
 export TESTY_PUBLIC_HOST="${HOST}"
 export TESTY_USE_SSL=False
