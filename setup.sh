@@ -9,7 +9,7 @@ set -e
 if [[ -z "${FHIRSTORE_PASSWORD}" ]]; then
     echo "Please provide the fhirstore password like this:"
     echo "$ FHIRSTORE_PASSWORD=... source setup.sh HOST_IP"
-    exit 1
+    return
 fi
 
 HOST="$1"
