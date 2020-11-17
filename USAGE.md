@@ -7,7 +7,7 @@
 
 ## Requirements
 
-    # Create and activate local virtualenv    
+    # Create and activate local virtualenv
     virtualenv -p python3.8 --prompt "(testy) " .venv && source ./.venv/bin/activate
 
     # Install requirements

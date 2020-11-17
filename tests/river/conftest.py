@@ -15,12 +15,12 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 @pytest.fixture(scope="session")
 def fhirstore() -> FHIRStore:
     mongo_client = MongoClient(
-        host=settings.FHIRSTORE_HOST,
-        port=settings.FHIRSTORE_PORT,
-        username=settings.FHIRSTORE_USER,
-        password=settings.FHIRSTORE_PASSWORD,
+        host=settings.MONGO_HOST,
+        port=settings.MONGO_PORT,
+        username=settings.MONGO_USER,
+        password=settings.MONGO_PASSWORD,
     )
-    return FHIRStore(mongo_client, None, settings.FHIRSTORE_DATABASE)
+    return FHIRStore(mongo_client, None, settings.MONGO_DB)
 
 
 @pytest.fixture(scope="session")
@@ -30,7 +30,7 @@ def pyrog_resources():
     with open(DATA_DIR / "credentials.json") as credentials_file:
         credentials = json.load(credentials_file)
 
-    pyrog_client = PyrogClient(f"{settings.REMOTE_URL}/pyrog-api")
+    pyrog_client = PyrogClient(f"http://{settings.PYROG_API_HOST}")
     try:
         pyrog_client.create_template(mapping["template"]["name"])
     except Exception:

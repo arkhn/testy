@@ -34,7 +34,6 @@ TTY=$(tty)
 export TESTY_TUNNEL_PID=$(pgrep -t "${TTY#/dev/}" ssh)
 
 export TESTY_PUBLIC_HOST="${HOST}"
-export TESTY_USE_SSL=False
 
 export KAFKA_BOOTSTRAP_SERVERS_EXTERNAL=0.0.0.0:9093
 export FHIRSTORE_HOST=localhost

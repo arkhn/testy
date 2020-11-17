@@ -56,7 +56,8 @@ def test_batch_single_row(pyrog_resources):
         try:
             # send a batch request
             response = requests.post(
-                f"{settings.REMOTE_URL}/river/batch", json={"resources": [resource]}
+                f"http://{settings.RIVER_API_HOST}/batch",
+                json={"resources": [resource]},
             )
         except requests.exceptions.ConnectionError:
             raise Exception("Could not connect to the api service")
