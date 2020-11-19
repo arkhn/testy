@@ -2,6 +2,10 @@ from typing import List
 
 import requests
 
+# GraphQL requests should be prettified with :
+#  - tabWidth set to 4 spaces
+#  - printWidth set to stay under flake8's max line length (79)
+
 
 class PyrogClient:
     def __init__(self, url, auth_header=None):
@@ -111,17 +115,19 @@ class PyrogClient:
                 $password: String!
                 $database: String!
                 $owner: String!
-                $model: String!) {
-                    upsertCredential(
-                        sourceId: $sourceId
-                        host: $host
-                        port: $port
-                        login: $login
-                        password: $password
-                        database: $database
-                        owner: $owner
-                        model: $model) {
-                            id
+                $model: String!
+            ) {
+                upsertCredential(
+                    sourceId: $sourceId
+                    host: $host
+                    port: $port
+                    login: $login
+                    password: $password
+                    database: $database
+                    owner: $owner
+                    model: $model
+                ) {
+                    id
                 }
             }
         """
