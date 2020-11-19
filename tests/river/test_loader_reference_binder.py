@@ -28,7 +28,7 @@ def handle_kafka_error(err):
 def send_batch(resource):
     # declare kafka consumer of "load" events
     consumer = EventConsumer(
-        broker=settings.KAFKA_BOOTSTRAP_SERVERS_EXTERNAL,
+        broker=settings.KAFKA_URL,
         topics=LOAD_TOPIC,
         group_id="test_batch_single_row",
         manage_error=handle_kafka_error,
@@ -40,7 +40,7 @@ def send_batch(resource):
         consumer.run_consumer(event_count=msg_value["size"], poll_timeout=15)
 
     batch_size_consumer = EventConsumer(
-        broker=settings.KAFKA_BOOTSTRAP_SERVERS_EXTERNAL,
+        broker=settings.KAFKA_URL,
         topics=BATCH_SIZE_TOPIC,
         group_id="test_batch_size",
         manage_error=handle_kafka_error,
