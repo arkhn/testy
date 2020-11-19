@@ -1,3 +1,4 @@
+import contextlib
 import json
 from pathlib import Path
 
@@ -24,24 +25,55 @@ def fhirstore() -> FHIRStore:
 
 
 @pytest.fixture(scope="session")
-def pyrog_resources():
+def pyrog_client():
+    return PyrogClient(settings.PYROG_API_URL)
+
+
+@pytest.fixture(scope="session")
+def template_factory(pyrog_client):
+    @contextlib.contextmanager
+    def _template_factory(name: str):
+        yield pyrog_client.create_template(name)
+
+    return _template_factory
+
+
+@pytest.fixture(scope="session")
+def source_factory(pyrog_client):
+    @contextlib.contextmanager
+    def _source_factory(name: str, template_name: str, mapping: str):
+        source_id = pyrog_client.create_source()
+        yield source_id
+        pyrog_client.delete_source(source_id)
+
+    return _source_factory
+
+
+@pytest.fixture(scope="session")
+def credentials_factory(pyrog_client):
+    @contextlib.contextmanager
+    def _credentials_factory(source_id: str, credentials: dict):
+        yield pyrog_client.upsert_credentials(source_id, credentials)
+
+    return _credentials_factory
+
+
+@pytest.fixture(scope="session")
+def pyrog_resources(pyrog_client, template_factory, source_factory):
     with open(DATA_DIR / "mapping.json") as mapping_file:
         mapping = json.load(mapping_file)
     with open(DATA_DIR / "credentials.json") as credentials_file:
         credentials = json.load(credentials_file)
 
-    pyrog_client = PyrogClient(settings.PYROG_API_URL)
-    try:
-        pyrog_client.create_template(mapping["template"]["name"])
-    except Exception:
-        pass
-    source_id = pyrog_client.create_source(
-        mapping["template"]["name"], mapping["source"]["name"], json.dumps(mapping)
-    )
-    pyrog_client.upsert_credentials(source_id, credentials)
+    with contextlib.ExitStack() as stack:
+        stack.enter_context(template_factory(mapping["template"]["name"]))
+        source_id = stack.enter_context(
+            source_factory(
+                mapping["source"]["name"],
+                mapping["template"]["name"],
+                json.dumps(mapping),
+            )
+        )
+        stack.enter_context(pyrog_client.upsert_credentials(source_id, credentials))
 
-    # yield the inserted resources
     yield pyrog_client.get_resources()
-
-    # cleanup the created source
-    pyrog_client.delete_source(source_id)
