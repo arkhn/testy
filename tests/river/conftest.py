@@ -30,7 +30,7 @@ def pyrog_client():
 
 
 @pytest.fixture(scope="session")
-def template_factory(pyrog_client):
+def template_factory(pyrog_client: PyrogClient):
     @contextlib.contextmanager
     def _template_factory(name: str):
         template_id = pyrog_client.create_template(name)
@@ -41,10 +41,12 @@ def template_factory(pyrog_client):
 
 
 @pytest.fixture(scope="session")
-def source_factory(pyrog_client):
+def source_factory(pyrog_client: PyrogClient):
     @contextlib.contextmanager
     def _source_factory(name: str, template_name: str, mapping: str):
-        source_id = pyrog_client.create_source()
+        source_id = pyrog_client.create_source(
+            name=name, template_name=template_name, mapping=mapping
+        )
         yield source_id
         pyrog_client.delete_source(source_id)
 
@@ -52,17 +54,19 @@ def source_factory(pyrog_client):
 
 
 @pytest.fixture(scope="session")
-def credentials_factory(pyrog_client):
+def credentials_factory(pyrog_client: PyrogClient):
     @contextlib.contextmanager
     def _credentials_factory(source_id: str, credentials: dict):
-        yield pyrog_client.upsert_credentials(source_id, credentials)
+        yield pyrog_client.upsert_credentials(
+            source_id=source_id, credentials=credentials
+        )
         # TODO(vmttn): remove credentials
 
     return _credentials_factory
 
 
 @pytest.fixture(scope="session")
-def pyrog_resources(pyrog_client, template_factory, source_factory):
+def pyrog_resources(pyrog_client: PyrogClient, template_factory, source_factory):
     with open(DATA_DIR / "mapping.json") as mapping_file:
         mapping = json.load(mapping_file)
     with open(DATA_DIR / "credentials.json") as credentials_file:

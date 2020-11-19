@@ -69,7 +69,7 @@ class PyrogClient:
         """
         return self.run_graphql_query(request, variables={"id": id_})
 
-    def create_source(self, template_name: str, source_name: str, mapping: str):
+    def create_source(self, name: str, template_name: str, mapping: str):
         request = """
             mutation createSource(
                 $templateName: String!
@@ -89,7 +89,7 @@ class PyrogClient:
             request,
             variables={
                 "templateName": template_name,
-                "name": source_name,
+                "name": name,
                 "mapping": mapping,
             },
         )
