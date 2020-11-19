@@ -76,4 +76,4 @@ def pyrog_resources(pyrog_client, template_factory, source_factory):
         )
         stack.enter_context(pyrog_client.upsert_credentials(source_id, credentials))
 
-    yield pyrog_client.get_resources()
+    yield pyrog_client.list_resources()

@@ -1,63 +1,6 @@
+from typing import List
+
 import requests
-
-delete_source_mutation = """
-mutation deleteSource($sourceId: ID!) {
-    deleteSource(sourceId: $sourceId) {
-        id
-    }
-}
-"""
-create_template_mutation = """
-mutation createTemplate($name: String!) {
-    createTemplate(name: $name) {
-        id
-    }
-}
-"""
-
-create_source_mutation = """
-mutation createSource($templateName: String!, $name: String!, $mapping: String) {
-    createSource(templateName: $templateName, name: $name, mapping: $mapping) {
-        id
-    }
-}
-"""
-
-upsert_credentials_mutation = """
-mutation upsertCredential(
-    $sourceId: ID!
-    $host: String!
-    $port: String!
-    $login: String!
-    $password: String!
-    $database: String!
-    $owner: String!
-    $model: String!) {
-        upsertCredential(
-            sourceId: $sourceId
-            host: $host
-            port: $port
-            login: $login
-            password: $password
-            database: $database
-            owner: $owner
-            model: $model) {
-                id
-    }
-}
-"""
-
-sources_query = """
-    query s {
-        sources {
-            id
-            resources {
-                id
-                definitionId
-            }
-        }
-    }
-"""
 
 
 class PyrogClient:
@@ -68,7 +11,7 @@ class PyrogClient:
             "Authorization": auth_header,
         }
 
-    def run_graphql_query(self, graphql_query, variables=None):
+    def run_graphql_query(self, request: str, variables=None):
         """
         This function queries a GraphQL endpoint
         and returns a json parsed response.
@@ -77,7 +20,7 @@ class PyrogClient:
             response = requests.post(
                 self.url,
                 headers=self.headers,
-                json={"query": graphql_query, "variables": variables},
+                json={"query": request, "variables": variables},
             )
         except requests.exceptions.ConnectionError:
             raise Exception("Could not connect to the Pyrog service")
@@ -102,19 +45,34 @@ class PyrogClient:
 
         return body
 
-    def delete_source(self, source_id):
-        return self.run_graphql_query(
-            delete_source_mutation, variables={"sourceId": source_id}
-        )
+    def create_template(self, name: str):
+        request = """
+            mutation createTemplate($name: String!) {
+                createTemplate(name: $name) {
+                    id
+                }
+            }
+        """
+        return self.run_graphql_query(request, variables={"name": name})
 
-    def create_template(self, name):
-        return self.run_graphql_query(
-            create_template_mutation, variables={"name": name}
-        )
-
-    def create_source(self, template_name, source_name, mapping):
+    def create_source(self, template_name: str, source_name: str, mapping: str):
+        request = """
+            mutation createSource(
+                $templateName: String!
+                $name: String!
+                $mapping: String
+            ) {
+                createSource(
+                    templateName: $templateName
+                    name: $name
+                    mapping: $mapping
+                ) {
+                    id
+                }
+            }
+        """
         source_resp = self.run_graphql_query(
-            create_source_mutation,
+            request,
             variables={
                 "templateName": template_name,
                 "name": source_name,
@@ -123,16 +81,58 @@ class PyrogClient:
         )
         return source_resp["data"]["createSource"]["id"]
 
-    def upsert_credentials(self, source_id: str, credentials):
+    def delete_source(self, id_: str):
+        request = """
+            mutation deleteSource($id: ID!) {
+                deleteSource(sourceId: $id) {
+                    id
+                }
+            }
+        """
+        return self.run_graphql_query(request, variables={"id": id_})
+
+    def upsert_credentials(self, source_id: str, credentials: dict):
+        request = """
+            mutation upsertCredential(
+                $sourceId: ID!
+                $host: String!
+                $port: String!
+                $login: String!
+                $password: String!
+                $database: String!
+                $owner: String!
+                $model: String!) {
+                    upsertCredential(
+                        sourceId: $sourceId
+                        host: $host
+                        port: $port
+                        login: $login
+                        password: $password
+                        database: $database
+                        owner: $owner
+                        model: $model) {
+                            id
+                }
+            }
+        """
         return self.run_graphql_query(
-            upsert_credentials_mutation,
-            variables={**credentials, "sourceId": source_id},
+            request, variables={**credentials, "sourceId": source_id}
         )
 
-    def get_resources(self):
-        sources_resp = self.run_graphql_query(sources_query)
-
+    def list_resources(self) -> List:
+        request = """
+            query s {
+                sources {
+                    id
+                    resources {
+                        id
+                        definitionId
+                    }
+                }
+            }
+        """
+        response = self.run_graphql_query(request)
         return [
             {"resource_id": resource["id"], "resource_type": resource["definitionId"]}
-            for resource in sources_resp["data"]["sources"][0]["resources"]
+            for resource in response["data"]["sources"][0]["resources"]
         ]
