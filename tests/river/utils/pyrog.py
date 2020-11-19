@@ -55,6 +55,16 @@ class PyrogClient:
         """
         return self.run_graphql_query(request, variables={"name": name})
 
+    def delete_template(self, id_: str):
+        request = """
+            mutation deleteTemplate($id: ID!) {
+                deleteTemplate(id: $id) {
+                    id
+                }
+            }
+        """
+        return self.run_graphql_query(request, variables={"id": id_})
+
     def create_source(self, template_name: str, source_name: str, mapping: str):
         request = """
             mutation createSource(

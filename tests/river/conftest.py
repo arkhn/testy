@@ -33,7 +33,9 @@ def pyrog_client():
 def template_factory(pyrog_client):
     @contextlib.contextmanager
     def _template_factory(name: str):
-        yield pyrog_client.create_template(name)
+        template_id = pyrog_client.create_template(name)
+        yield template_id
+        pyrog_client.delete_template(template_id)
 
     return _template_factory
 
@@ -54,6 +56,7 @@ def credentials_factory(pyrog_client):
     @contextlib.contextmanager
     def _credentials_factory(source_id: str, credentials: dict):
         yield pyrog_client.upsert_credentials(source_id, credentials)
+        # TODO(vmttn): remove credentials
 
     return _credentials_factory
 
