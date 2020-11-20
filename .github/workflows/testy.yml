@@ -1,0 +1,17 @@
+name: stack
+
+on: push
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Provision, deploy and test
+        uses: arkhn/testy-action@v0.1.0
+        with:
+          cloudToken: ${{ secrets.CLOUD_TOKEN }}
+          cloudProjectId: ${{ secrets.CLOUD_PROJECT_ID }}
+          cloudKey: ${{ secrets.CLOUD_KEY }}
+          contextName: testy-repo-${{ github.sha }}
+          deploymentToken: ${{ secrets.DEPLOYMENT_DEPLOY_KEY }}
