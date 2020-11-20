@@ -17,6 +17,7 @@ services:
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - KAFKA_HOST=${KAFKA_HOST:-kafka}
       - KAFKA_PORT=${KAFKA_PORT:-9092}
+      - KAFKA_PROTO=${KAFKA_PROTO:-PLAINTEXT}
       - PYROG_API_HOST=${PYROG_API_HOST:-pyrog-server}
       - PYROG_API_PORT=${PYROG_API_PORT:-1000}
       - RIVER_API_HOST=${RIVER_API_HOST:-river-api}

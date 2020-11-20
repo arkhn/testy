@@ -18,6 +18,9 @@ RIVER_API_HOST = os.environ.get("RIVER_API_HOST", "river-api")
 RIVER_API_PORT = int(os.environ.get("RIVER_API_PORT", "3000"))
 RIVER_API_URL = f"http://{RIVER_API_HOST}:{RIVER_API_PORT}"
 
-KAFKA_HOST = os.environ.get("KAFKA_HOST")
-KAFKA_PORT = os.environ.get("KAFKA_PORT")
-KAFKA_URL = f"http://{KAFKA_HOST}:{KAFKA_PORT}"
+KAFKA_HOST = os.environ.get("KAFKA_HOST", "kafka")
+KAFKA_PORT = os.environ.get("KAFKA_PORT", "9092")
+KAFKA_PROTO = os.environ.get("KAFKA_PROTO", "PLAINTEXT")
+KAFKA_LISTENER = (
+    os.environ.get("KAFKA_LISTENER") or f"{KAFKA_PROTO}://{KAFKA_HOST}:{KAFKA_PORT}"
+)

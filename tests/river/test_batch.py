@@ -33,7 +33,7 @@ def test_batch_single_row(pyrog_resources):
 
     # declare kafka consumer of "load" events
     consumer = EventConsumer(
-        broker=settings.KAFKA_URL,
+        broker=settings.KAFKA_LISTENER,
         topics=LOAD_TOPIC,
         group_id="test_batch_single_row",
         manage_error=handle_kafka_error,
@@ -45,7 +45,7 @@ def test_batch_single_row(pyrog_resources):
         consumer.run_consumer(event_count=msg_value["size"], poll_timeout=15)
 
     batch_size_consumer = EventConsumer(
-        broker=settings.KAFKA_URL,
+        broker=settings.KAFKA_LISTENER,
         topics=BATCH_SIZE_TOPIC,
         group_id="test_batch_size",
         manage_error=handle_kafka_error,
