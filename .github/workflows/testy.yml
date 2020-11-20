@@ -1,4 +1,4 @@
-name: stack
+name: testy
 
 on: push
 
@@ -15,3 +15,4 @@ jobs:
           cloudKey: ${{ secrets.CLOUD_KEY }}
           contextName: testy-repo-${{ github.sha }}
           deploymentToken: ${{ secrets.DEPLOYMENT_DEPLOY_KEY }}
+          deploymentRef: sv/config-e2e-tests
