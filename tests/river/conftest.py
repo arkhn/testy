@@ -33,9 +33,9 @@ def pyrog_client():
 def template_factory(pyrog_client: PyrogClient):
     @contextlib.contextmanager
     def _template_factory(name: str):
-        template_id = pyrog_client.create_template(name)
-        yield template_id
-        pyrog_client.delete_template(template_id)
+        template = pyrog_client.create_template(name)
+        yield template
+        pyrog_client.delete_template(template["id"])
 
     return _template_factory
 

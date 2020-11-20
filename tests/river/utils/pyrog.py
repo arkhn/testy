@@ -49,7 +49,7 @@ class PyrogClient:
 
         return body
 
-    def create_template(self, name: str):
+    def create_template(self, name: str) -> dict:
         request = """
             mutation createTemplate($name: String!) {
                 createTemplate(name: $name) {
@@ -57,7 +57,8 @@ class PyrogClient:
                 }
             }
         """
-        return self.run_graphql_query(request, variables={"name": name})
+        resp = self.run_graphql_query(request, variables={"name": name})
+        return resp["data"]["createTemplate"]
 
     def delete_template(self, id_: str):
         request = """
