@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 import requests
@@ -10,6 +11,9 @@ from .utils.kafka import EventConsumer
 
 BATCH_SIZE_TOPIC = "batch_size"
 LOAD_TOPIC = "load"
+
+
+logger = logging.getLogger(__file__)
 
 
 @pytest.fixture(scope="module")
@@ -36,7 +40,7 @@ def send_batch(resource):
 
     def wait_batch(msg):
         msg_value = json.loads(msg.value())
-        print(f"Got batch of size {msg_value['size']}, consuming events...")
+        logger.info(f"Got batch of size {msg_value['size']}, consuming events...")
         consumer.run_consumer(event_count=msg_value["size"], poll_timeout=15)
 
     batch_size_consumer = EventConsumer(
@@ -59,7 +63,7 @@ def send_batch(resource):
         response.status_code == 200
     ), f"api POST /batch returned an error: {response.text}"
 
-    print("Waiting for a batch_size event...")
+    logger.info("Waiting for a batch_size event...")
     batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)
 
 
