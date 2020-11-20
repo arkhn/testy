@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - name: Provision, deploy and test
-        uses: arkhn/testy-action@v0.1.0
+        uses: arkhn/testy-action@v0.2.0
         with:
           cloudToken: ${{ secrets.CLOUD_TOKEN }}
           cloudProjectId: ${{ secrets.CLOUD_PROJECT_ID }}
