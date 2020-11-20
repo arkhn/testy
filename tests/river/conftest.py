@@ -85,4 +85,4 @@ def pyrog_resources(
         )
         stack.enter_context(credentials_factory(source_id, credentials))
 
-    yield pyrog_client.list_resources()
+        yield pyrog_client.list_resources()
