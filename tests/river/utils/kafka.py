@@ -78,7 +78,6 @@ class EventConsumer:
         if event_count:
             for i in range(event_count):
                 self.consume_event(poll_timeout=poll_timeout)
-                logger.info(f"consumed {i+1} events")
         else:
             while True:
                 self.consume_event()
