@@ -44,11 +44,11 @@ def template_factory(pyrog_client: PyrogClient):
 def source_factory(pyrog_client: PyrogClient):
     @contextlib.contextmanager
     def _source_factory(name: str, template_name: str, mapping: str):
-        source_id = pyrog_client.create_source(
+        source = pyrog_client.create_source(
             name=name, template_name=template_name, mapping=mapping
         )
-        yield source_id
-        pyrog_client.delete_source(source_id)
+        yield source
+        pyrog_client.delete_source(source["id"])
 
     return _source_factory
 
@@ -76,13 +76,13 @@ def pyrog_resources(
 
     with contextlib.ExitStack() as stack:
         stack.enter_context(template_factory(mapping["template"]["name"]))
-        source_id = stack.enter_context(
+        source = stack.enter_context(
             source_factory(
                 mapping["source"]["name"],
                 mapping["template"]["name"],
                 json.dumps(mapping),
             )
         )
-        stack.enter_context(credentials_factory(source_id, credentials))
+        stack.enter_context(credentials_factory(source["id"], credentials))
 
         yield pyrog_client.list_resources()

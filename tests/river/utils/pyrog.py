@@ -95,7 +95,7 @@ class PyrogClient:
                 "mapping": mapping,
             },
         )
-        return data["createSource"]["id"]
+        return data["createSource"]
 
     def delete_source(self, id_: str) -> dict:
         request = """
