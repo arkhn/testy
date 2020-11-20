@@ -12,3 +12,7 @@ __pycache__/
 # VSCode
 .vscode/
 !.vscode/settings.json
+
+# Misc
+*.env
+!.template.env
