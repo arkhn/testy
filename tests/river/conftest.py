@@ -66,7 +66,9 @@ def credentials_factory(pyrog_client: PyrogClient):
 
 
 @pytest.fixture(scope="session")
-def pyrog_resources(pyrog_client: PyrogClient, template_factory, source_factory):
+def pyrog_resources(
+    pyrog_client: PyrogClient, template_factory, source_factory, credentials_factory
+):
     with open(DATA_DIR / "mapping.json") as mapping_file:
         mapping = json.load(mapping_file)
     with open(DATA_DIR / "credentials.json") as credentials_file:
@@ -81,6 +83,6 @@ def pyrog_resources(pyrog_client: PyrogClient, template_factory, source_factory)
                 json.dumps(mapping),
             )
         )
-        stack.enter_context(pyrog_client.upsert_credentials(source_id, credentials))
+        stack.enter_context(credentials_factory(source_id, credentials))
 
     yield pyrog_client.list_resources()
