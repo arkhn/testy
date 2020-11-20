@@ -34,20 +34,20 @@ class PyrogClient:
                 "Graphql query failed with returning code "
                 f"{response.status_code}\n{response.json()}."
             )
-        body = response.json()
-        if "errors" in body:
-            status_code = body["errors"][0].get("statusCode")
-            error_message = body["errors"][0].get("message")
+        content = response.json()
+        if "errors" in content:
+            status_code = content["errors"][0].get("statusCode")
+            error_message = content["errors"][0].get("message")
             if status_code == 401:
                 raise Exception(error_message)
             if status_code == 403:
                 raise Exception("You don't have the rights to perform this action.")
             raise Exception(
                 "GraphQL query failed with errors: "
-                f"{[err['message'] for err in body['errors']]}."
+                f"{[err['message'] for err in content['errors']]}."
             )
 
-        return body
+        return content["data"]
 
     def create_template(self, name: str) -> dict:
         request = """
@@ -57,10 +57,10 @@ class PyrogClient:
                 }
             }
         """
-        resp = self.run_graphql_query(request, variables={"name": name})
-        return resp["data"]["createTemplate"]
+        data = self.run_graphql_query(request, variables={"name": name})
+        return data["createTemplate"]
 
-    def delete_template(self, id_: str):
+    def delete_template(self, id_: str) -> dict:
         request = """
             mutation deleteTemplate($id: ID!) {
                 deleteTemplate(id: $id) {
@@ -68,7 +68,8 @@ class PyrogClient:
                 }
             }
         """
-        return self.run_graphql_query(request, variables={"id": id_})
+        data = self.run_graphql_query(request, variables={"id": id_})
+        return data["deleteTemplate"]
 
     def create_source(self, name: str, template_name: str, mapping: str):
         request = """
@@ -86,7 +87,7 @@ class PyrogClient:
                 }
             }
         """
-        source_resp = self.run_graphql_query(
+        data = self.run_graphql_query(
             request,
             variables={
                 "templateName": template_name,
@@ -94,9 +95,9 @@ class PyrogClient:
                 "mapping": mapping,
             },
         )
-        return source_resp["data"]["createSource"]["id"]
+        return data["createSource"]["id"]
 
-    def delete_source(self, id_: str):
+    def delete_source(self, id_: str) -> dict:
         request = """
             mutation deleteSource($id: ID!) {
                 deleteSource(sourceId: $id) {
@@ -104,9 +105,10 @@ class PyrogClient:
                 }
             }
         """
-        return self.run_graphql_query(request, variables={"id": id_})
+        data = self.run_graphql_query(request, variables={"id": id_})
+        return data["deleteSource"]
 
-    def upsert_credentials(self, source_id: str, credentials: dict):
+    def upsert_credentials(self, source_id: str, credentials: dict) -> dict:
         request = """
             mutation upsertCredential(
                 $sourceId: ID!
@@ -132,9 +134,10 @@ class PyrogClient:
                 }
             }
         """
-        return self.run_graphql_query(
+        data = self.run_graphql_query(
             request, variables={**credentials, "sourceId": source_id}
         )
+        return data["upsertCredential"]
 
     def list_resources(self) -> List:
         request = """
@@ -148,8 +151,8 @@ class PyrogClient:
                 }
             }
         """
-        response = self.run_graphql_query(request)
+        data = self.run_graphql_query(request)
         return [
             {"resource_id": resource["id"], "resource_type": resource["definitionId"]}
-            for resource in response["data"]["sources"][0]["resources"]
+            for resource in data["sources"][0]["resources"]
         ]
