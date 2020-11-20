@@ -42,7 +42,7 @@ class EventConsumer:
             self.topics = [self.topics]
 
         self.consumer.subscribe(self.topics)
-        logger.info(f"subscribed to {self.topics}")
+        logger.debug(f"subscribed to {self.topics}")
 
     def _generate_config(self):
         """
