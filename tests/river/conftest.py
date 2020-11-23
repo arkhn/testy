@@ -12,7 +12,6 @@ from .utils.pyrog import PyrogClient
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
-
 @pytest.fixture(scope="session")
 def fhirstore() -> FHIRStore:
     mongo_client = MongoClient(
