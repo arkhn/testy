@@ -46,7 +46,7 @@ def send_batch(resource, batch_size_consumer):
     batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)
 
 
-def test_batch_reference_binder(fhirstore, pyrog_resources):
+def test_batch_reference_binder(store, pyrog_resources):
     # declare kafka consumer of "load" events
     consumer = EventConsumer(
         broker=settings.KAFKA_LISTENER,
@@ -73,8 +73,8 @@ def test_batch_reference_binder(fhirstore, pyrog_resources):
         send_batch(resource, batch_size_consumer)
 
     # Check reference binding
-    encounters = fhirstore.db["Encounter"]
-    patients = fhirstore.db["Patient"]
+    encounters = store.db["Encounter"]
+    patients = store.db["Patient"]
     cursor = encounters.find({})
     for document in cursor:
         assert "reference" in document["subject"]

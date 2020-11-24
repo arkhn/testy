@@ -28,7 +28,7 @@ def handle_kafka_error(err):
     raise err
 
 
-def test_batch_single_row(pyrog_resources):
+def test_batch_single_row(pyrog_resources, cleanup):
     logger.debug("Start")
 
     # declare kafka consumer of "load" events
