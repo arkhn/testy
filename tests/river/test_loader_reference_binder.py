@@ -29,7 +29,24 @@ def handle_kafka_error(err):
     raise err
 
 
-def send_batch(resource):
+def send_batch(resource, batch_size_consumer):
+    try:
+        # send a batch request
+        response = requests.post(
+            f"{settings.RIVER_API_URL}/batch", json={"resources": [resource]}
+        )
+    except requests.exceptions.ConnectionError:
+        raise Exception("Could not connect to the api service")
+
+    assert (
+        response.status_code == 200
+    ), f"api POST /batch returned an error: {response.text}"
+
+    logger.debug("Waiting for a batch_size event...")
+    batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)
+
+
+def test_batch_reference_binder(fhirstore, pyrog_resources):
     # declare kafka consumer of "load" events
     consumer = EventConsumer(
         broker=settings.KAFKA_LISTENER,
@@ -51,26 +68,9 @@ def send_batch(resource):
         process_event=wait_batch,
     )
 
-    try:
-        # send a batch request
-        response = requests.post(
-            f"{settings.RIVER_API_URL}/batch", json={"resources": [resource]}
-        )
-    except requests.exceptions.ConnectionError:
-        raise Exception("Could not connect to the api service")
-
-    assert (
-        response.status_code == 200
-    ), f"api POST /batch returned an error: {response.text}"
-
-    logger.debug("Waiting for a batch_size event...")
-    batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)
-
-
-def test_batch_reference_binder(fhirstore, pyrog_resources):
     # Send Patient and Encounter batches
     for resource in pyrog_resources:
-        send_batch(resource)
+        send_batch(resource, batch_size_consumer)
 
     # Check reference binding
     encounters = fhirstore.db["Encounter"]
