@@ -63,17 +63,28 @@ def credentials_factory(pyrog_client: PyrogClient):
 
     return _credentials_factory
 
+@pytest.fixture(scope="session")
+def concept_maps_factory(fhirstore: FHIRStore):
+    @contextlib.contextmanager
+    def _concept_maps_factory(bundle):
+        yield fhirstore.upload_bundle(bundle)
+
+    return _concept_maps_factory
+
 
 @pytest.fixture(scope="session")
 def pyrog_resources(
-    pyrog_client: PyrogClient, template_factory, source_factory, credentials_factory
+    pyrog_client: PyrogClient, template_factory, source_factory, credentials_factory, concept_maps_factory
 ):
+    with open(DATA_DIR / "conceptMaps.json") as concept_maps_file:
+        concept_maps = json.load(concept_maps_file)
     with open(DATA_DIR / "mapping.json") as mapping_file:
         mapping = json.load(mapping_file)
     with open(DATA_DIR / "credentials.json") as credentials_file:
         credentials = json.load(credentials_file)
 
     with contextlib.ExitStack() as stack:
+        stack.enter_context(concept_maps_factory(concept_maps))
         stack.enter_context(template_factory(mapping["template"]["name"]))
         source = stack.enter_context(
             source_factory(
