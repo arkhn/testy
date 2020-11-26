@@ -42,7 +42,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     def wait_batch(msg):
         msg_value = json.loads(msg.value())
         logger.debug(f"Go batch of size {msg_value['size']}, consuming events...")
-        consumer.run_consumer(event_count=msg_value["size"], poll_timeout=15)
+        consumer.run_consumer(event_count=msg_value["size"], poll_timeout=30)
 
     batch_size_consumer = EventConsumer(
         broker=settings.KAFKA_LISTENER,
@@ -67,7 +67,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
         ), f"api POST /batch returned an error: {response.text}"
 
         logger.debug("Waiting for a batch_size event...")
-        batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)
+        batch_size_consumer.run_consumer(event_count=1, poll_timeout=30)
 
 
 # check in elastic that references have been set
