@@ -29,28 +29,7 @@ def handle_kafka_error(err):
     raise err
 
 
-def send_batch(resource):
-    # declare kafka consumer of "load" events
-    consumer = EventConsumer(
-        broker=settings.KAFKA_LISTENER,
-        topics=LOAD_TOPIC,
-        group_id="test_batch_single_row",
-        manage_error=handle_kafka_error,
-    )
-
-    def wait_batch(msg):
-        msg_value = json.loads(msg.value())
-        logger.debug(f"Got batch of size {msg_value['size']}, consuming events...")
-        consumer.run_consumer(event_count=msg_value["size"], poll_timeout=15)
-
-    batch_size_consumer = EventConsumer(
-        broker=settings.KAFKA_LISTENER,
-        topics=BATCH_SIZE_TOPIC,
-        group_id="test_batch_size",
-        manage_error=handle_kafka_error,
-        process_event=wait_batch,
-    )
-
+def send_batch(resource, batch_size_consumer):
     try:
         # send a batch request
         response = requests.post(
@@ -64,17 +43,38 @@ def send_batch(resource):
     ), f"api POST /batch returned an error: {response.text}"
 
     logger.debug("Waiting for a batch_size event...")
-    batch_size_consumer.run_consumer(event_count=1, poll_timeout=15)
+    batch_size_consumer.run_consumer(event_count=1, poll_timeout=30)
 
 
-def test_batch_reference_binder(fhirstore, pyrog_resources):
+def test_batch_reference_binder(store, pyrog_resources):
+    # declare kafka consumer of "load" events
+    consumer = EventConsumer(
+        broker=settings.KAFKA_LISTENER,
+        topics=LOAD_TOPIC,
+        group_id="test_batch_single_row",
+        manage_error=handle_kafka_error,
+    )
+
+    def wait_batch(msg):
+        msg_value = json.loads(msg.value())
+        logger.debug(f"Got batch of size {msg_value['size']}, consuming events...")
+        consumer.run_consumer(event_count=msg_value["size"], poll_timeout=30)
+
+    batch_size_consumer = EventConsumer(
+        broker=settings.KAFKA_LISTENER,
+        topics=BATCH_SIZE_TOPIC,
+        group_id="test_batch_size",
+        manage_error=handle_kafka_error,
+        process_event=wait_batch,
+    )
+
     # Send Patient and Encounter batches
     for resource in pyrog_resources:
-        send_batch(resource)
+        send_batch(resource, batch_size_consumer)
 
     # Check reference binding
-    encounters = fhirstore.db["Encounter"]
-    patients = fhirstore.db["Patient"]
+    encounters = store.db["Encounter"]
+    patients = store.db["Patient"]
     cursor = encounters.find({})
     for document in cursor:
         assert "reference" in document["subject"]
