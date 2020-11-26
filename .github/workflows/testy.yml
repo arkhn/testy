@@ -9,6 +9,9 @@ jobs:
     steps:
       - name: Provision, deploy and test
         uses: arkhn/testy-action@v0.3.0
+        env:
+          DEBUG: "True"
+          ANSIBLE_STDOUT_CALLBACK: debug
         with:
           cloudToken: ${{ secrets.CLOUD_TOKEN }}
           cloudProjectId: ${{ secrets.CLOUD_PROJECT_ID }}
