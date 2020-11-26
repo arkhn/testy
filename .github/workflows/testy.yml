@@ -8,12 +8,10 @@ jobs:
 
     steps:
       - name: Provision, deploy and test
-        uses: arkhn/testy-action@v0.3.0
-        env:
-          DEBUG: "True"
+        uses: arkhn/testy-action@v0.4.0
         with:
-          cloudToken: ${{ secrets.CLOUD_TOKEN }}
-          cloudProjectId: ${{ secrets.CLOUD_PROJECT_ID }}
-          cloudKey: ${{ secrets.CLOUD_KEY }}
+          cloudToken: ${{ secrets.TESTY_CLOUD_TOKEN }}
+          cloudProjectId: ${{ secrets.TESTY_CLOUD_PROJECT_ID }}
+          cloudKey: ${{ secrets.TESTY_CLOUD_KEY }}
           contextName: testy-repo-${{ github.sha }}
-          deploymentToken: ${{ secrets.DEPLOYMENT_DEPLOY_KEY }}
+          deploymentToken: ${{ secrets.GIT_USER_KEY }}
