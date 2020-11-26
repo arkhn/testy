@@ -11,11 +11,9 @@ jobs:
         uses: arkhn/testy-action@v0.3.0
         env:
           DEBUG: "True"
-          ANSIBLE_STDOUT_CALLBACK: debug
         with:
           cloudToken: ${{ secrets.CLOUD_TOKEN }}
           cloudProjectId: ${{ secrets.CLOUD_PROJECT_ID }}
           cloudKey: ${{ secrets.CLOUD_KEY }}
           contextName: testy-repo-${{ github.sha }}
           deploymentToken: ${{ secrets.DEPLOYMENT_DEPLOY_KEY }}
-          deploymentRef: sv/config-e2e-tests
