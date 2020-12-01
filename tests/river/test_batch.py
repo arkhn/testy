@@ -54,7 +54,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     assert msg == f"batch:{batch_id}:resources", f"Validation error on Redis message: {msg}"
 
     counter = redis_client.hgetall(f"batch:{batch_id}:counter")
-    assert counter is not None and any(v != "0" for v in counter.values())
+    assert counter is not None and any(v != "0" for v in counter.values()), f"Counter is empty: {counter}"
 
     for key, value in counter.items():
         logger.debug(f"Processing {batch_id} counter {key}: {value}")
