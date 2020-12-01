@@ -24,3 +24,7 @@ KAFKA_PROTO = os.environ.get("KAFKA_PROTO", "PLAINTEXT")
 KAFKA_LISTENER = (
     os.environ.get("KAFKA_LISTENER") or f"{KAFKA_PROTO}://{KAFKA_HOST}:{KAFKA_PORT}"
 )
+
+REDIS_COUNTER_HOST = os.environ.get("RIVER_REDIS_HOST", "river-redis")
+REDIS_COUNTER_PORT = os.environ.get("RIVER_REDIS_PORT", 6379)
+REDIS_COUNTER_DB = os.environ.get("REDIS_COUNTER_DB", 2)

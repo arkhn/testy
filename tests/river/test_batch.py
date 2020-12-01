@@ -1,18 +1,15 @@
-import json
 import logging
-
+import redis
 import pytest
 import requests
+import re
+from uuid import UUID
 
 from fhirstore import FHIRStore
 
 from .. import settings
-from .utils.kafka import EventConsumer
 
 logger = logging.getLogger(__file__)
-
-BATCH_SIZE_TOPIC = "batch_size"
-LOAD_TOPIC = "load"
 
 
 @pytest.fixture(scope="module")
@@ -24,50 +21,38 @@ def cleanup(fhirstore: FHIRStore):
     patients.delete_many({})
 
 
-def handle_kafka_error(err):
-    raise err
-
-
 def test_batch_single_row(pyrog_resources, cleanup):
     logger.debug("Start")
-
-    # declare kafka consumer of "load" events
-    consumer = EventConsumer(
-        broker=settings.KAFKA_LISTENER,
-        topics=LOAD_TOPIC,
-        group_id="test_batch_single_row",
-        manage_error=handle_kafka_error,
+    redis_client = redis.Redis(
+        host=settings.REDIS_COUNTER_HOST,
+        port=settings.REDIS_COUNTER_PORT,
+        db=settings.REDIS_COUNTER_DB
     )
 
-    def wait_batch(msg):
-        msg_value = json.loads(msg.value())
-        logger.debug(f"Go batch of size {msg_value['size']}, consuming events...")
-        consumer.run_consumer(event_count=msg_value["size"], poll_timeout=30)
-
-    batch_size_consumer = EventConsumer(
-        broker=settings.KAFKA_LISTENER,
-        topics=BATCH_SIZE_TOPIC,
-        group_id="test_batch_size",
-        manage_error=handle_kafka_error,
-        process_event=wait_batch,
-    )
-
-    for resource in pyrog_resources:
-        try:
-            # send a batch request
-            response = requests.post(
-                f"{settings.RIVER_API_URL}/batch",
-                json={"resources": [resource]},
-            )
-        except requests.exceptions.ConnectionError:
-            raise Exception("Could not connect to the api service")
-
-        assert (
+    try:
+        # send a batch request
+        response = requests.post(
+            f"{settings.RIVER_API_URL}/batch",
+            json={"resources": pyrog_resources},
+        )
+    except requests.exceptions.ConnectionError:
+        raise Exception("Could not connect to the api service")
+    assert (
             response.status_code == 200
-        ), f"api POST /batch returned an error: {response.text}"
+    ), f"api POST /batch returned an error: {response.text}"
+    batch_id = response.text
+    # UUID will raise a ValueError if batch_id is not a valid uuid
+    UUID(batch_id, version=4)
+    redis_ps = redis_client.pubsub()
+    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del batch:{batch_id}:resources")
+    logger.debug(f"Waiting for stop signal from batch {batch_id}")
+    msg = redis_ps.get_message(timeout=300.0)
+    assert msg is not None, f"No response from batch {batch_id}"
+    counter = redis_client.hgetall(f"batch:{batch_id}:counter")
+    for key, value in counter.items():
+        if key.endswith(":extracted") and value != "0":
+            resource_id = re.search("^resource:(.*):extracted$", key).group(1)
+            assert value == counter[f"resource:{resource_id}:loaded"], \
+                f"Equality error on batch {batch_id} for resource {resource_id}"
 
-        logger.debug("Waiting for a batch_size event...")
-        batch_size_consumer.run_consumer(event_count=1, poll_timeout=30)
-
-
-# check in elastic that references have been set
+# TODO: check in elastic that references have been set
