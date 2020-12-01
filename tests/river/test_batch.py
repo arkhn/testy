@@ -23,11 +23,14 @@ def cleanup(fhirstore: FHIRStore):
 
 def test_batch_single_row(pyrog_resources, cleanup):
     logger.debug("Start")
+
     redis_client = redis.Redis(
         host=settings.REDIS_COUNTER_HOST,
         port=settings.REDIS_COUNTER_PORT,
         db=settings.REDIS_COUNTER_DB
     )
+    redis_ps = redis_client.pubsub()
+    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
     try:
         # send a batch request
@@ -40,15 +43,16 @@ def test_batch_single_row(pyrog_resources, cleanup):
     assert (
             response.status_code == 200
     ), f"api POST /batch returned an error: {response.text}"
+
     batch_id = response.text
     # UUID will raise a ValueError if batch_id is not a valid uuid
     UUID(batch_id, version=4)
-    redis_ps = redis_client.pubsub()
-    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
+
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
     msg = redis_ps.get_message(timeout=300.0)
     assert msg is not None, f"No response from batch {batch_id}"
     assert msg == f"batch:{batch_id}:resources", f"Validation error on Redis message: {msg}"
+
     counter = redis_client.hgetall(f"batch:{batch_id}:counter")
     for key, value in counter.items():
         logger.debug(f"Processing {batch_id} counter {key}: {value}")
