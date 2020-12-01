@@ -12,6 +12,7 @@ from .utils.pyrog import PyrogClient
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
+
 @pytest.fixture(scope="session")
 def fhirstore() -> FHIRStore:
     mongo_client = MongoClient(
@@ -62,6 +63,7 @@ def credentials_factory(pyrog_client: PyrogClient):
         # TODO(vmttn): remove credentials
 
     return _credentials_factory
+
 
 @pytest.fixture(scope="session")
 def concept_maps_factory(fhirstore: FHIRStore):

@@ -21,6 +21,23 @@ def cleanup(fhirstore: FHIRStore):
     patients.delete_many({})
 
 
+def send_batch(resources) -> str:
+    try:
+        # send a batch request
+        response = requests.post(
+            f"{settings.RIVER_API_URL}/batch", json={"resources": resources}
+        )
+    except requests.exceptions.ConnectionError:
+        raise Exception("Could not connect to the api service")
+
+    assert (
+            response.status_code == 200
+    ), f"api POST /batch returned an error: {response.text}"
+
+    logger.debug("Waiting for a batch_size event...")
+    return response.text
+
+
 def test_batch_single_row(pyrog_resources, cleanup):
     logger.debug("Start")
 
@@ -32,19 +49,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     redis_ps = redis_client.pubsub()
     redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
-    try:
-        # send a batch request
-        response = requests.post(
-            f"{settings.RIVER_API_URL}/batch",
-            json={"resources": pyrog_resources},
-        )
-    except requests.exceptions.ConnectionError:
-        raise Exception("Could not connect to the api service")
-    assert (
-            response.status_code == 200
-    ), f"api POST /batch returned an error: {response.text}"
-
-    batch_id = response.text
+    batch_id = send_batch(pyrog_resources)
     # UUID will raise a ValueError if batch_id is not a valid uuid
     UUID(batch_id, version=4)
 
