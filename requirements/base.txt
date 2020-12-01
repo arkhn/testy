@@ -34,3 +34,5 @@ urllib3==1.25.11
 Werkzeug==1.0.1
 yarl==1.6.3
 zope.interface==5.2.0
+redis==3.5.3
+hiredis==1.1.0
