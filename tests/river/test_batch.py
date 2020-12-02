@@ -48,7 +48,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     )
     # Enable keyspace notifications for keyevent events E
     # and generic commands g
-    redis_client.config_set("notify-keyspace-events", "Eg")
+    redis_client.config_set("notify-keyspace-events", "KEA")
     redis_ps = redis_client.pubsub()
     redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
@@ -57,6 +57,16 @@ def test_batch_single_row(pyrog_resources, cleanup):
     UUID(batch_id, version=4)
 
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
     msg = redis_ps.get_message(timeout=300.0)
     logger.debug(f"Redis msg: {msg}")
     msg = redis_ps.get_message(timeout=300.0)
