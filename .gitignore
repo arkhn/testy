@@ -4,6 +4,7 @@
 
 # Virtualenv
 [.]venv/
+venv/
 
 # Python
 *.py[cod]
