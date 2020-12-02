@@ -50,7 +50,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     # and generic commands g
     redis_client.config_set("notify-keyspace-events", "KEA")
     redis_ps = redis_client.pubsub()
-    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
+    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:*")
 
     batch_id = send_batch(pyrog_resources)
     # UUID will raise a ValueError if batch_id is not a valid uuid
