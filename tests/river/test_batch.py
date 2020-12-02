@@ -46,6 +46,9 @@ def test_batch_single_row(pyrog_resources, cleanup):
         port=settings.REDIS_COUNTER_PORT,
         db=settings.REDIS_COUNTER_DB
     )
+    # Enable keyspace notifications for keyevent events E
+    # and generic commands g
+    redis_client.config_set("notify-keyspace-events", "Eg")
     redis_ps = redis_client.pubsub()
     redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
