@@ -58,9 +58,14 @@ def test_batch_single_row(pyrog_resources, cleanup):
 
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
     msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
     assert msg == f"batch:{batch_id}:resources", \
         f"Validation error on Redis message: {msg}"
+    # Exit subscribed state. It is required to issue any other command
+    redis_ps.reset()
 
     counter = redis_client.hgetall(f"batch:{batch_id}:counter")
     assert counter is not None and any(v != "0" for v in counter.values()), \
