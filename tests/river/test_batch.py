@@ -72,7 +72,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     # Test wether what has been extracted has been eventually loaded
     logger.debug(f"Processing {batch_id} counter...")
     counter = {
-        str(k): int(v) for k, v
+        k.decode("utf-8"): int(v) for k, v
         in redis_client.hgetall(f"batch:{batch_id}:counter").items()
     }
     assert counter is not None and any(v != 0 for v in counter.values()), \
