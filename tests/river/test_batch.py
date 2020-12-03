@@ -3,7 +3,6 @@ import redis
 import pytest
 import requests
 import re
-import time
 from uuid import UUID
 
 from fhirstore import FHIRStore
@@ -47,23 +46,21 @@ def test_batch_single_row(pyrog_resources, cleanup):
     )
     # Enable keyspace notifications for keyevent events E
     # and generic commands g
-    redis_client.config_set("notify-keyspace-events", "KEA")
+    redis_client.config_set("notify-keyspace-events", "Eg")
     redis_ps = redis_client.pubsub()
     redis_ps.psubscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
+    # Send Patient and Encounter batch
     batch_id = send_batch(pyrog_resources)
     # UUID will raise a ValueError if batch_id is not a valid uuid
     UUID(batch_id, version=4)
 
-    # Waiting for Kafka consumers to refresh metada and consume new topics
-    time.sleep(5)
-
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
     # psubscribe message
-    msg = redis_ps.get_message(timeout=300.0)
+    msg = redis_ps.get_message(timeout=500.0)
     logger.debug(f"Redis msg: {msg}")
     # Actual signaling message
-    msg = redis_ps.get_message(timeout=300.0)
+    msg = redis_ps.get_message(timeout=500.0)
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
     assert msg['data'] == f"batch:{batch_id}:resources", \
