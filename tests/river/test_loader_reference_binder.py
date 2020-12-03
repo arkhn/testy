@@ -63,7 +63,7 @@ def test_batch_reference_binder(store, pyrog_resources):
     msg = redis_ps.get_message(timeout=500.0)
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
-    assert msg['data'] == f"batch:{batch_id}:resources", \
+    assert msg['data'].decode("utf-8") == f"batch:{batch_id}:resources", \
         f"Validation error on Redis message: {msg}"
 
     # Check reference binding

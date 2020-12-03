@@ -63,7 +63,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
     msg = redis_ps.get_message(timeout=500.0)
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
-    assert msg['data'] == f"batch:{batch_id}:resources", \
+    assert msg['data'].decode("utf-8") == f"batch:{batch_id}:resources", \
         f"Validation error on Redis message: {msg}"
     # Exit subscribed state. It is required to issue any other command
     redis_ps.reset()
