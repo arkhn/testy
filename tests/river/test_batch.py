@@ -4,6 +4,7 @@ import pytest
 import requests
 import re
 from uuid import UUID
+from confluent_kafka.admin import AdminClient
 
 from fhirstore import FHIRStore
 
@@ -68,16 +69,31 @@ def test_batch_single_row(pyrog_resources, cleanup):
     # Exit subscribed state. It is required to issue any other command
     redis_ps.reset()
 
-    counter = redis_client.hgetall(f"batch:{batch_id}:counter")
-    assert counter is not None and any(v != "0" for v in counter.values()), \
-        f"Counter is empty: {counter}"
-
+    # Test wether what has been extracted has been eventually loaded
     logger.debug(f"Processing {batch_id} counter...")
+    counter = {
+        str(k): int(v) for k, v
+        in redis_client.hgetall(f"batch:{batch_id}:counter").items()
+    }
+    assert counter is not None and any(v != 0 for v in counter.values()), \
+        f"Counter is empty: {counter}"
     for key, value in counter.items():
+        key = str(key)
         logger.debug(f"{key}: {value}")
         if key.endswith(":extracted") and value != "0":
             resource_id = re.search("^resource:(.*):extracted$", key).group(1)
             assert value == counter[f"resource:{resource_id}:loaded"], \
                 f"Equality error on batch {batch_id} for resource {resource_id}"
+
+    # Test if the batch topics have been deleted
+    batch_topics = [
+        f"batch.{batch_id}",
+        f"extract.{batch_id}",
+        f"transform.{batch_id}",
+        f"load.{batch_id}"
+    ]
+    topics = AdminClient({"bootstrap.servers": settings.KAFKA_LISTENER}).list_topics().topics
+    logger.debug(f"Existing Kafka topics: {topics}")
+    assert not set(batch_topics) & set(topics)
 
 # TODO: check in elastic that references have been set
