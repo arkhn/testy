@@ -75,6 +75,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
         k.decode("utf-8"): int(v) for k, v
         in redis_client.hgetall(f"batch:{batch_id}:counter").items()
     }
+    logger.debug(f"Redis counter: {counter}")
     assert counter is not None and any(v != 0 for v in counter.values()), \
         f"Counter is empty: {counter}"
     for key, value in counter.items():
