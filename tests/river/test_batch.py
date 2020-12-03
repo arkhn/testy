@@ -3,6 +3,7 @@ import redis
 import pytest
 import requests
 import re
+import time
 from uuid import UUID
 
 from fhirstore import FHIRStore
@@ -33,8 +34,6 @@ def send_batch(resources) -> str:
     assert (
             response.status_code == 200
     ), f"api POST /batch returned an error: {response.text}"
-
-    logger.debug("Waiting for a batch_size event...")
     return response.text
 
 
@@ -50,32 +49,19 @@ def test_batch_single_row(pyrog_resources, cleanup):
     # and generic commands g
     redis_client.config_set("notify-keyspace-events", "KEA")
     redis_ps = redis_client.pubsub()
-    redis_ps.psubscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:*")
+    redis_ps.psubscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
     batch_id = send_batch(pyrog_resources)
     # UUID will raise a ValueError if batch_id is not a valid uuid
     UUID(batch_id, version=4)
 
+    # Waiting for Kafka consumers to refresh metada and consume new topics
+    time.sleep(5)
+
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
-    msg = redis_ps.get_message(timeout=3000.0)
+    msg = redis_ps.get_message(timeout=300.0)
     logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=1000.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=150.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
-    logger.debug(f"Redis msg: {msg}")
-    msg = redis_ps.get_message(timeout=2.0)
+    msg = redis_ps.get_message(timeout=300.0)
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
     assert msg == f"batch:{batch_id}:resources", \
