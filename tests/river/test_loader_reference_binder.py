@@ -54,8 +54,15 @@ def test_batch_reference_binder(store, pyrog_resources):
     batch_id = send_batch(pyrog_resources)
 
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
+    # psubscribe message
     msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
+    # Actual signaling message
+    msg = redis_ps.get_message(timeout=300.0)
+    logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
+    assert msg['data'] == f"batch:{batch_id}:resources", \
+        f"Validation error on Redis message: {msg}"
 
     # Check reference binding
     encounters = store.db["Encounter"]
