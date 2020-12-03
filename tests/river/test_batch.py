@@ -78,7 +78,6 @@ def test_batch_single_row(pyrog_resources, cleanup):
     assert counter is not None and any(v != 0 for v in counter.values()), \
         f"Counter is empty: {counter}"
     for key, value in counter.items():
-        key = str(key)
         logger.debug(f"{key}: {value}")
         if key.endswith(":extracted") and value != "0":
             resource_id = re.search("^resource:(.*):extracted$", key).group(1)
