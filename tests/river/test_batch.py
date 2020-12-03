@@ -79,7 +79,7 @@ def test_batch_single_row(pyrog_resources, cleanup):
         f"Counter is empty: {counter}"
     for key, value in counter.items():
         logger.debug(f"{key}: {value}")
-        if key.endswith(":extracted") and value != "0":
+        if key.endswith(":extracted") and value != 0:
             resource_id = re.search("^resource:(.*):extracted$", key).group(1)
             assert value == counter[f"resource:{resource_id}:loaded"], \
                 f"Equality error on batch {batch_id} for resource {resource_id}"
