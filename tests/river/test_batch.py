@@ -37,7 +37,7 @@ def send_batch(resources) -> str:
     return response.text
 
 
-def test_batch_single_row(pyrog_resources, cleanup):
+def test_batch(pyrog_resources, cleanup):
     logger.debug("Start")
 
     redis_client = redis.Redis(
