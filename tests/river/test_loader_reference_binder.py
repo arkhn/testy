@@ -61,7 +61,7 @@ def test_batch_reference_binder(store, pyrog_resources):
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from Redis"
     # Actual signaling message
-    msg = redis_ps.get_message(timeout=300.0)
+    msg = redis_ps.get_message(timeout=settings.BATCH_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from batch {batch_id}"
     assert msg['data'].decode("utf-8") == f"batch:{batch_id}:resources", \

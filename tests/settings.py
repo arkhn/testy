@@ -28,3 +28,5 @@ KAFKA_LISTENER = (
 REDIS_COUNTER_HOST = os.environ.get("RIVER_REDIS_HOST", "river-redis")
 REDIS_COUNTER_PORT = os.environ.get("RIVER_REDIS_PORT", 6379)
 REDIS_COUNTER_DB = os.environ.get("REDIS_COUNTER_DB", 2)
+
+BATCH_TIMEOUT = os.environ.get("BATCH_TIMEOUT", 300.0)
