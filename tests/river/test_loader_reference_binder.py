@@ -1,17 +1,11 @@
-import json
 import logging
-
 import pytest
+import redis
 import requests
 
 from fhirstore import FHIRStore
 
 from .. import settings
-from .utils.kafka import EventConsumer
-
-BATCH_SIZE_TOPIC = "batch_size"
-LOAD_TOPIC = "load"
-
 
 logger = logging.getLogger(__file__)
 
@@ -29,11 +23,11 @@ def handle_kafka_error(err):
     raise err
 
 
-def send_batch(resource, batch_size_consumer):
+def send_batch(resources) -> str:
     try:
         # send a batch request
         response = requests.post(
-            f"{settings.RIVER_API_URL}/batch", json={"resources": [resource]}
+            f"{settings.RIVER_API_URL}/batch", json={"resources": resources}
         )
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
@@ -43,34 +37,35 @@ def send_batch(resource, batch_size_consumer):
     ), f"api POST /batch returned an error: {response.text}"
 
     logger.debug("Waiting for a batch_size event...")
-    batch_size_consumer.run_consumer(event_count=1, poll_timeout=30)
+    return response.text
 
 
 def test_batch_reference_binder(store, pyrog_resources):
-    # declare kafka consumer of "load" events
-    consumer = EventConsumer(
-        broker=settings.KAFKA_LISTENER,
-        topics=LOAD_TOPIC,
-        group_id="test_batch_single_row",
-        manage_error=handle_kafka_error,
+    redis_client = redis.Redis(
+        host=settings.REDIS_COUNTER_HOST,
+        port=settings.REDIS_COUNTER_PORT,
+        db=settings.REDIS_COUNTER_DB
     )
+    # Enable keyspace notifications for keyevent events E
+    # and generic commands g
+    redis_client.config_set("notify-keyspace-events", "Eg")
+    redis_ps = redis_client.pubsub()
+    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
 
-    def wait_batch(msg):
-        msg_value = json.loads(msg.value())
-        logger.debug(f"Got batch of size {msg_value['size']}, consuming events...")
-        consumer.run_consumer(event_count=msg_value["size"], poll_timeout=30)
+    # Send Patient and Encounter batch
+    batch_id = send_batch(pyrog_resources)
 
-    batch_size_consumer = EventConsumer(
-        broker=settings.KAFKA_LISTENER,
-        topics=BATCH_SIZE_TOPIC,
-        group_id="test_batch_size",
-        manage_error=handle_kafka_error,
-        process_event=wait_batch,
-    )
-
-    # Send Patient and Encounter batches
-    for resource in pyrog_resources:
-        send_batch(resource, batch_size_consumer)
+    logger.debug(f"Waiting for stop signal of batch {batch_id}")
+    # psubscribe message
+    msg = redis_ps.get_message(timeout=5.0)
+    logger.debug(f"Redis msg: {msg}")
+    assert msg is not None, f"No response from Redis"
+    # Actual signaling message
+    msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
+    logger.debug(f"Redis msg: {msg}")
+    assert msg is not None, f"No response from batch {batch_id}"
+    assert msg['data'].decode("utf-8") == f"batch:{batch_id}:resources", \
+        f"Validation error on Redis message: {msg}"
 
     # Check reference binding
     encounters = store.db["Encounter"]
