@@ -42,7 +42,7 @@ def cancel_batch(batch_id):
 
     assert (
             response.status_code == 200
-    ), f"api POST /batch returned an error: {response.text}"
+    ), f"api DELETE /batch/{batch_id} returned an error: {response.text}"
 
 
 def test_cancel_batch(pyrog_resources, cleanup):
