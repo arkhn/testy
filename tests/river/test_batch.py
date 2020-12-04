@@ -82,7 +82,7 @@ def test_batch(pyrog_resources, cleanup):
     #   ...
     # }
     # The counter contains an extracted key for each resource of the batch
-    # and can be null if no record have been extracted. In this last case,
+    # which can be null if no record have been extracted. In this last case,
     # the loaded key won't exist.
     logger.debug(f"Processing {batch_id} counter...")
     counter = {
