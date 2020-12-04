@@ -56,6 +56,8 @@ def test_batch(pyrog_resources, cleanup):
     # UUID will raise a ValueError if batch_id is not a valid uuid
     UUID(batch_id, version=4)
 
+    # When a batch ends, the API deletes the Redis key batch:{batch_id}:resources in Redis.
+    # Here we want to get the notification of this event.
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
     # psubscribe message
     msg = redis_ps.get_message(timeout=5.0)
@@ -70,7 +72,15 @@ def test_batch(pyrog_resources, cleanup):
     # Exit subscribed state. It is required to issue any other command
     redis_ps.reset()
 
-    # Test wether what has been extracted has been eventually loaded
+    # Test whether what has been extracted has been eventually loaded
+    # thank to the Redis key batch:{batch_id}:counter which counts every
+    # records extracted in the Extractor and documents loaded in the Loader.
+    # The key batch:{batch_id}:counter is a hash of the form
+    # {
+    #   "resource:{resource_id}:extracted": integer,
+    #   "resource:{resource_id}:loaded": integer,
+    #   ...
+    # }
     logger.debug(f"Processing {batch_id} counter...")
     counter = {
         k.decode("utf-8"): int(v) for k, v
