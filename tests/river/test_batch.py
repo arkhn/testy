@@ -59,7 +59,7 @@ def test_batch(pyrog_resources, cleanup):
     # When a batch ends, the API deletes the Redis key batch:{batch_id}:resources in Redis.
     # Here we want to get the notification of this event.
     logger.debug(f"Waiting for stop signal of batch {batch_id}")
-    # psubscribe message
+    # psubscribe message telling us the subscription works
     msg = redis_ps.get_message(timeout=5.0)
     logger.debug(f"Redis msg: {msg}")
     assert msg is not None, f"No response from Redis"
@@ -81,6 +81,9 @@ def test_batch(pyrog_resources, cleanup):
     #   "resource:{resource_id}:loaded": integer,
     #   ...
     # }
+    # The counter contains an extracted key for each resource of the batch
+    # and can be null if no record have been extracted. In this last case,
+    # the loaded key won't exist.
     logger.debug(f"Processing {batch_id} counter...")
     counter = {
         k.decode("utf-8"): int(v) for k, v
@@ -96,6 +99,7 @@ def test_batch(pyrog_resources, cleanup):
                 f"Equality error on batch {batch_id} for resource {resource_id}"
 
     # Test if the batch topics have been deleted
+    # At the end of a batch, its topics are deleted from Kafka
     batch_topics = [
         f"batch.{batch_id}",
         f"extract.{batch_id}",
