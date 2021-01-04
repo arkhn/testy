@@ -68,9 +68,9 @@ def test_batch_reference_binder(store, pyrog_resources):
         f"Validation error on Redis message: {msg}"
 
     # Check reference binding
-    encounters = store.db["Encounter"]
+    observations = store.db["Observation"]
     patients = store.db["Patient"]
-    cursor = encounters.find({})
+    cursor = observations.find({})
     for document in cursor:
         assert "reference" in document["subject"]
         reference = document["subject"]["reference"].split("/")
