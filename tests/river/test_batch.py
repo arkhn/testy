@@ -45,8 +45,8 @@ def test_batch(pyrog_resources, cleanup):
         port=settings.REDIS_COUNTER_PORT,
         db=settings.REDIS_COUNTER_DB
     )
-    # Enable keyspace notifications for keyevent events E
-    # and hash commands h and subscribing to events of key deletion
+    # Enable keyspace notifications for keyevent events
+    # and hash commands
     redis_client.config_set("notify-keyspace-events", "Eh")
     redis_ps = redis_client.pubsub()
     redis_ps.psubscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:hdel")
@@ -58,7 +58,7 @@ def test_batch(pyrog_resources, cleanup):
 
     # When a batch ends, the API deletes the corresponding field in the Redis key "batch'.
     # Here we want to get the notification of this event.
-    logger.debug(f"Waiting for stop signal of a batch")
+    logger.debug(f"Waiting for the current batch to end")
     # psubscribe message telling us the subscription works
     msg = redis_ps.get_message(timeout=5.0)
     logger.debug(f"Redis msg: {msg}")
@@ -66,8 +66,7 @@ def test_batch(pyrog_resources, cleanup):
     # The following message signals that a batch has been deleted
     msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, "No response from Redis"
-    assert msg['data'].decode("utf-8") == "batch", \
+    assert msg is not None and msg['data'].decode("utf-8") == "batch", \
         f"Validation error on Redis message: {msg}"
     # Exit subscribed state. It is required to issue any other command
     redis_ps.reset()

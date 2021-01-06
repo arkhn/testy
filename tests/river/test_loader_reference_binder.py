@@ -46,8 +46,8 @@ def test_batch_reference_binder(store, pyrog_resources):
         port=settings.REDIS_COUNTER_PORT,
         db=settings.REDIS_COUNTER_DB
     )
-    # Enable keyspace notifications for keyevent events E
-    # and hash commands h.
+    # Enable keyspace notifications for keyevent events
+    # and hash commands
     redis_client.config_set("notify-keyspace-events", "Eh")
     redis_ps = redis_client.pubsub()
     redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:hdel")
@@ -63,8 +63,7 @@ def test_batch_reference_binder(store, pyrog_resources):
     # Actual signaling message
     msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, "No response from Redis"
-    assert msg['data'].decode("utf-8") == "batch", \
+    assert msg is not None and msg['data'].decode("utf-8") == "batch", \
         f"Validation error on Redis message: {msg}"
 
     # Check reference binding
