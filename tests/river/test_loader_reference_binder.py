@@ -46,25 +46,24 @@ def test_batch_reference_binder(store, pyrog_resources):
         port=settings.REDIS_COUNTER_PORT,
         db=settings.REDIS_COUNTER_DB
     )
-    # Enable keyspace notifications for keyevent events E
-    # and generic commands g
-    redis_client.config_set("notify-keyspace-events", "Eg")
+    # Enable keyspace notifications for keyevent events
+    # and hash commands
+    redis_client.config_set("notify-keyspace-events", "Eh")
     redis_ps = redis_client.pubsub()
-    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:del")
+    redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:hdel")
 
     # Send Patient and Encounter batch
-    batch_id = send_batch(pyrog_resources)
+    send_batch(pyrog_resources)
 
-    logger.debug(f"Waiting for stop signal of batch {batch_id}")
+    logger.debug(f"Waiting for the current batch to end")
     # psubscribe message
     msg = redis_ps.get_message(timeout=5.0)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, f"No response from Redis"
+    assert msg is not None, "No response from Redis"
     # Actual signaling message
     msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, f"No response from batch {batch_id}"
-    assert msg['data'].decode("utf-8") == f"batch:{batch_id}:resources", \
+    assert msg is not None and msg['data'].decode("utf-8") == "batch", \
         f"Validation error on Redis message: {msg}"
 
     # Check reference binding
