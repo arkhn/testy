@@ -13,10 +13,6 @@ from .. import settings
 logger = logging.getLogger(__file__)
 
 
-def handle_kafka_error(err):
-    raise err
-
-
 def send_batch(resources) -> str:
     try:
         # send a batch request
@@ -26,7 +22,6 @@ def send_batch(resources) -> str:
 
     assert response.status_code == 200, f"api POST /batch returned an error: {response.text}"
 
-    logger.debug("Waiting for a batch_size event...")
     return response.text
 
 
@@ -56,7 +51,7 @@ def batch(pyrog_resources):
     # psubscribe message telling us the subscription works
     msg = redis_ps.get_message(timeout=5.0)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, f"No response from Redis"
+    assert msg is not None, "No response from Redis"
     # The following message signals that a batch has been deleted
     msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
@@ -114,10 +109,13 @@ def test_batch_reference_binder(fhirstore):
     cursor = observations.find({})
     for document in cursor:
         if "http://hl7.org/fhir/StructureDefinition/bp" in document["meta"].get("profile", []):
-        # References on this profile aren't bound
+            # References on this profile aren't bound
             continue
         assert "reference" in document["subject"]
         reference = document["subject"]["reference"].split("/")
         assert reference[0] == "Patient"
         patient = patients.find_one(filter={"id": reference[1]})
         assert patient
+
+
+# TODO: check in elastic that references have been set
