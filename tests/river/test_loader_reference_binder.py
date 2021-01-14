@@ -23,7 +23,7 @@ def handle_kafka_error(err):
     raise err
 
 
-def send_batch(resources) -> str:
+def send_batch(resources) -> dict:
     try:
         # send a batch request
         response = requests.post(
@@ -37,7 +37,7 @@ def send_batch(resources) -> str:
     ), f"api POST /batch returned an error: {response.text}"
 
     logger.debug("Waiting for a batch_size event...")
-    return response.text
+    return response.json()
 
 
 def test_batch_reference_binder(store, pyrog_resources):

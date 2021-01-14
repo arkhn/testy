@@ -19,7 +19,7 @@ def cleanup(fhirstore: FHIRStore):
     patients.delete_many({})
 
 
-def send_batch(resources) -> str:
+def send_batch(resources) -> dict:
     try:
         # send a batch request
         response = requests.post(
@@ -31,7 +31,7 @@ def send_batch(resources) -> str:
     assert (
             response.status_code == 200
     ), f"api POST /batch returned an error: {response.text}"
-    return response.text
+    return response.json()
 
 
 def cancel_batch(batch_id):
@@ -49,7 +49,8 @@ def test_cancel_batch(pyrog_resources, cleanup):
     logger.debug("Start")
 
     # Send Patient and Encounter batch
-    batch_id = send_batch(pyrog_resources)
+    batch = send_batch(pyrog_resources)
+    batch_id = batch["id"]
 
     cancel_batch(batch_id)
 

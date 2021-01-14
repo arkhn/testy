@@ -22,7 +22,7 @@ def cleanup(fhirstore: FHIRStore):
     patients.delete_many({})
 
 
-def send_batch(resources) -> str:
+def send_batch(resources) -> dict:
     try:
         # send a batch request
         response = requests.post(
@@ -34,7 +34,7 @@ def send_batch(resources) -> str:
     assert (
             response.status_code == 200
     ), f"api POST /batch returned an error: {response.text}"
-    return response.text
+    return response.json()
 
 
 def test_batch(pyrog_resources, cleanup):
@@ -52,7 +52,8 @@ def test_batch(pyrog_resources, cleanup):
     redis_ps.psubscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:hdel")
 
     # Send Patient and Encounter batch
-    batch_id = send_batch(pyrog_resources)
+    batch = send_batch(pyrog_resources)
+    batch_id = batch["id"]
     # UUID will raise a ValueError if batch_id is not a valid uuid
     UUID(batch_id, version=4)
 
