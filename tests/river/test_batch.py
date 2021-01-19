@@ -42,13 +42,12 @@ def batch(pyrog_resources):
 
     # Send Patient and Encounter batch
     batch = send_batch(pyrog_resources)
-    batch_id = batch["id"]
     # UUID will raise a ValueError if batch_id is not a valid uuid
-    UUID(batch_id, version=4)
+    UUID(batch['id'], version=4)
 
     # When a batch ends, the API deletes the corresponding field in the Redis key "batch'.
     # Here we want to get the notification of this event.
-    logger.debug(f"Waiting for the current batch to end")
+    logger.debug("Waiting for the current batch to end")
     # psubscribe message telling us the subscription works
     msg = redis_ps.get_message(timeout=5.0)
     logger.debug(f"Redis msg: {msg}")
@@ -56,11 +55,11 @@ def batch(pyrog_resources):
     # The following message signals that a batch has been deleted
     msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, f"No response from batch {batch_id}"
+    assert msg is not None, f"No response from batch {batch['id']}"
     assert msg["data"].decode("utf-8") == "batch", f"Validation error on Redis message: {msg}"
     # Exit subscribed state. It is required to issue any other command
     redis_ps.reset()
-    yield {"id": batch_id}
+    yield batch
 
 
 def test_batch(pyrog_resources, batch):
