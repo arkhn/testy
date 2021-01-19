@@ -6,21 +6,10 @@ import re
 import requests
 from uuid import UUID
 
-from fhirstore import FHIRStore
-
 from .. import settings
 
 
 logger = logging.getLogger(__file__)
-
-
-@pytest.fixture(scope="module")
-def cleanup(fhirstore: FHIRStore):
-    yield
-    encounters = fhirstore.db["Encounter"]
-    patients = fhirstore.db["Patient"]
-    encounters.delete_many({})
-    patients.delete_many({})
 
 
 def send_batch(resources) -> dict:
