@@ -6,23 +6,23 @@ import re
 import requests
 from uuid import UUID
 
-from fhirstore import FHIRStore
-
 from .. import settings
+
 
 logger = logging.getLogger(__file__)
 
 
-def send_batch(resources) -> str:
+def send_batch(resources) -> dict:
     try:
         # send a batch request
         response = requests.post(f"{settings.RIVER_API_URL}/batch", json={"resources": resources})
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
 
-    assert response.status_code == 200, f"api POST /batch returned an error: {response.text}"
-
-    return response.text
+    assert (
+            response.status_code == 200
+    ), f"api POST /batch returned an error: {response.text}"
+    return response.json()
 
 
 redis_client = redis.Redis(
@@ -40,14 +40,14 @@ def batch(pyrog_resources):
     redis_ps = redis_client.pubsub()
     redis_ps.subscribe(f"__keyevent@{settings.REDIS_COUNTER_DB}__:hdel")
 
-    # Send batch
-    batch_id = send_batch(pyrog_resources)
+    # Send Patient and Encounter batch
+    batch = send_batch(pyrog_resources)
     # UUID will raise a ValueError if batch_id is not a valid uuid
-    UUID(batch_id, version=4)
+    UUID(batch['id'], version=4)
 
     # When a batch ends, the API deletes the corresponding field in the Redis key "batch'.
     # Here we want to get the notification of this event.
-    logger.debug(f"Waiting for the current batch to end")
+    logger.debug("Waiting for the current batch to end")
     # psubscribe message telling us the subscription works
     msg = redis_ps.get_message(timeout=5.0)
     logger.debug(f"Redis msg: {msg}")
@@ -55,11 +55,11 @@ def batch(pyrog_resources):
     # The following message signals that a batch has been deleted
     msg = redis_ps.get_message(timeout=settings.BATCH_DURATION_TIMEOUT)
     logger.debug(f"Redis msg: {msg}")
-    assert msg is not None, f"No response from batch {batch_id}"
+    assert msg is not None, f"No response from batch {batch['id']}"
     assert msg["data"].decode("utf-8") == "batch", f"Validation error on Redis message: {msg}"
     # Exit subscribed state. It is required to issue any other command
     redis_ps.reset()
-    yield {"id": batch_id}
+    yield batch
 
 
 def test_batch(pyrog_resources, batch):
