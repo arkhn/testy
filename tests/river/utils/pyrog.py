@@ -117,7 +117,7 @@ class PyrogClient:
                 $login: String!
                 $password: String!
                 $database: String!
-                $owner: String!
+                $owners: [String!]
                 $model: String!
             ) {
                 upsertCredential(
@@ -127,7 +127,7 @@ class PyrogClient:
                     login: $login
                     password: $password
                     database: $database
-                    owner: $owner
+                    owners: $owners
                     model: $model
                 ) {
                     id
