@@ -469,20 +469,7 @@
           "path": "photo[0].title",
           "definitionId": "string",
           "sliceName": null,
-          "comments": [
-            {
-              "attributeId": "ckjl9h9mc1788164och684ku9n",
-              "authorId": "ckggipd9u283915gpjj236hnm9",
-              "content": "Not matching condition",
-              "createdAt": "2020-11-16T09:50:51.949Z",
-              "id": "ckjl9h9mc1788264oci6is3e8m",
-              "updatedAt": "2021-01-06T10:10:58.166Z",
-              "validation": false,
-              "author": {
-                "email": "admin@arkhn.com"
-              }
-            }
-          ],
+          "comments": [],
           "inputGroups": [
             {
               "id": "ckjl9h9md1788364ocm0icad2p",
@@ -1277,20 +1264,7 @@
           "path": "photo[0].title",
           "definitionId": "string",
           "sliceName": null,
-          "comments": [
-            {
-              "attributeId": "ckjl9h9mb1784964ocy27agt81",
-              "authorId": "ckggipd9u283915gpjj236hnm9",
-              "content": "Two matching conditions",
-              "createdAt": "2020-11-16T09:51:04.401Z",
-              "id": "ckjl9h9mb1785064ocr7iccp5p",
-              "updatedAt": "2021-01-06T10:10:58.164Z",
-              "validation": false,
-              "author": {
-                "email": "admin@arkhn.com"
-              }
-            }
-          ],
+          "comments": [],
           "inputGroups": [
             {
               "id": "ckjl9h9mb1785164ocln36tptl",
@@ -3268,20 +3242,7 @@
           "path": "communication[0].language.coding[0].code",
           "definitionId": "code",
           "sliceName": null,
-          "comments": [
-            {
-              "attributeId": "ckjl9h9m81776364oc6kyaevd3",
-              "authorId": "ckggipd9u283915gpjj236hnm9",
-              "content": "matching condition",
-              "createdAt": "2020-11-02T13:56:51.423Z",
-              "id": "ckjl9h9m81776464ocwhauu05i",
-              "updatedAt": "2021-01-06T10:10:58.161Z",
-              "validation": false,
-              "author": {
-                "email": "admin@arkhn.com"
-              }
-            }
-          ],
+          "comments": [],
           "inputGroups": []
         },
         {
