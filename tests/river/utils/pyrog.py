@@ -62,13 +62,13 @@ class PyrogClient:
 
     def delete_template(self, id_: str) -> dict:
         request = """
-            mutation deleteTemplate($id: ID!) {
-                deleteTemplate(id: $id) {
+            mutation deleteTemplate($templateId: ID!) {
+                deleteTemplate(templateId: $templateId) {
                     id
                 }
             }
         """
-        data = self.run_graphql_query(request, variables={"id": id_})
+        data = self.run_graphql_query(request, variables={"templateId": id_})
         return data["deleteTemplate"]
 
     def create_source(self, name: str, template_name: str, mapping: str):
@@ -117,7 +117,7 @@ class PyrogClient:
                 $login: String!
                 $password: String!
                 $database: String!
-                $owner: String!
+                $owners: [String!]
                 $model: String!
             ) {
                 upsertCredential(
@@ -127,7 +127,7 @@ class PyrogClient:
                     login: $login
                     password: $password
                     database: $database
-                    owner: $owner
+                    owners: $owners
                     model: $model
                 ) {
                     id
