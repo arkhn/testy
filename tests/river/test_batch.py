@@ -15,7 +15,7 @@ logger = logging.getLogger(__file__)
 def send_batch(resources) -> dict:
     try:
         # send a batch request
-        response = requests.post(f"{settings.RIVER_API_URL}/batch", json={"resources": resources})
+        response = requests.post(f"{settings.RIVER_API_URL}/batch/", json={"resources": resources})
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
 

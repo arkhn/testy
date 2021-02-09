@@ -23,7 +23,7 @@ def send_batch(resources) -> dict:
     try:
         # send a batch request
         response = requests.post(
-            f"{settings.RIVER_API_URL}/batch", json={"resources": resources}
+            f"{settings.RIVER_API_URL}/batch/", json={"resources": resources}
         )
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
@@ -36,13 +36,13 @@ def send_batch(resources) -> dict:
 
 def cancel_batch(batch_id):
     try:
-        response = requests.delete(f"{settings.RIVER_API_URL}/batch/{batch_id}")
+        response = requests.delete(f"{settings.RIVER_API_URL}/batch/{batch_id}/")
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
 
     assert (
             response.status_code == 200
-    ), f"api DELETE /batch/{batch_id} returned an error: {response.text}"
+    ), f"api DELETE /batch/{batch_id}/ returned an error: {response.text}"
 
 
 def test_cancel_batch(pyrog_resources, cleanup):
