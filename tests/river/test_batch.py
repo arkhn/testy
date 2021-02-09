@@ -4,6 +4,7 @@ import pytest
 import redis
 import re
 import requests
+import time
 from uuid import UUID
 
 from .. import settings
@@ -86,6 +87,9 @@ def test_batch(pyrog_resources, batch):
 
     # Test if the batch topics have been deleted
     # At the end of a batch, its topics are deleted from Kafka
+    # NOTE with the Python API, topics are only marked as "to delete" and the operation is asynchronous.
+    # Thus, we sleep.
+    time.sleep(10)
     batch_topics = [
         f"batch.{batch['id']}",
         f"extract.{batch['id']}",

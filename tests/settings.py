@@ -14,7 +14,7 @@ PYROG_API_HOST = os.environ.get("PYROG_API_HOST", "pyrog-server")
 PYROG_API_PORT = int(os.environ.get("PYROG_API_PORT", "1000"))
 PYROG_API_URL = f"http://{PYROG_API_HOST}:{PYROG_API_PORT}/"
 
-RIVER_API_URL = os.environ.get("RIVER_API_URL", "river-api:8000")
+RIVER_API_URL = os.environ.get("RIVER_API_URL", "http://river-api:8000/api")
 
 KAFKA_HOST = os.environ.get("KAFKA_HOST", "kafka")
 KAFKA_PORT = os.environ.get("KAFKA_PORT", "9092")
