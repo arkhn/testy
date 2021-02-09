@@ -19,9 +19,7 @@ def send_batch(resources) -> dict:
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the api service")
 
-    assert (
-            response.status_code == 200
-    ), f"api POST /batch returned an error: {response.text}"
+    assert response.status_code == 200, f"api POST /batch returned an error: {response.text}"
     return response.json()
 
 
@@ -43,7 +41,7 @@ def batch(pyrog_resources):
     # Send Patient and Encounter batch
     batch = send_batch(pyrog_resources)
     # UUID will raise a ValueError if batch_id is not a valid uuid
-    UUID(batch['id'], version=4)
+    UUID(batch["id"], version=4)
 
     # When a batch ends, the API deletes the corresponding field in the Redis key "batch'.
     # Here we want to get the notification of this event.
@@ -76,10 +74,7 @@ def test_batch(pyrog_resources, batch):
     # which can be null if no record has been extracted. In this last case,
     # the loaded key won't exist.
     logger.debug(f"Processing {batch['id']} counter...")
-    counter = {
-        k.decode("utf-8"): int(v)
-        for k, v in redis_client.hgetall(f"batch:{batch['id']}:counter").items()
-    }
+    counter = {k.decode("utf-8"): int(v) for k, v in redis_client.hgetall(f"batch:{batch['id']}:counter").items()}
     logger.debug(f"Redis counter: {counter}")
     assert any(v != 0 for v in counter.values()), f"Counter is empty: {counter}"
     for key, value in counter.items():
