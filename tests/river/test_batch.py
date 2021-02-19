@@ -119,5 +119,8 @@ def test_batch_reference_binder(fhirstore):
             logger.debug(f"patient {reference[1]} FOUND")
         else:
             logger.debug(f"patient {reference[1]} not found")
+    patients = patients.find({})
+    for document in patients:
+        logger.debug(f"Patient {document['id']}")
 
 # TODO: check in elastic that references have been set
