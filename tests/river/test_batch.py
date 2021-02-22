@@ -112,9 +112,8 @@ def test_batch_reference_binder(fhirstore):
             continue
         assert "reference" in document["subject"]
         reference = document["subject"]["reference"].split("/")
-        assert reference[0] == "Patient"
+        assert reference[0] == "Patient", f"bad reference type. Expected 'Patient', got {reference[0]} in {reference}"
         patient = patients.find_one(filter={"id": reference[1]})
-        assert patient
-
+        assert patient, f"patient {reference[1]} not found"
 
 # TODO: check in elastic that references have been set
