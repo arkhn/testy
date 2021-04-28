@@ -28,8 +28,8 @@
         "id": "8d45157a-12c5-4da2-8b80-0c5607fa37d7",
         "name": "MimicGender>AdministrativeGender",
         "resourceType": "ConceptMap",
-        "sourceUri": "",
-        "targetUri": "",
+        "sourceUri": "source-uri",
+        "targetUri": "target-uri",
         "title": "MimicGender>AdministrativeGender"
       }
     }
