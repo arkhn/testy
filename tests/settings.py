@@ -4,11 +4,8 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
-MONGO_DB = os.environ.get("MONGO_DB", "fhirstore")
-MONGO_HOST = os.environ.get("MONGO_HOST", "localhost")
-MONGO_PORT = int(os.environ.get("MONGO_PORT", "27017"))
-MONGO_USER = os.environ.get("MONGO_USER", "arkhn")
-MONGO_PASSWORD = os.environ["MONGO_PASSWORD"]
+FHIR_API_URL = os.environ.get("FHIR_API_URL", "http://jpaltime:8080/hapi/fhir")
+FHIR_API_AUTH_TOKEN = os.environ.get("FHIR_API_AUTH_TOKEN", "Bearer adminToken")
 
 PYROG_API_HOST = os.environ.get("PYROG_API_HOST", "pyrog-server")
 PYROG_API_PORT = int(os.environ.get("PYROG_API_PORT", "1000"))
@@ -19,9 +16,7 @@ RIVER_API_URL = os.environ.get("RIVER_API_URL", "http://river-api:8000/api")
 KAFKA_HOST = os.environ.get("KAFKA_HOST", "kafka")
 KAFKA_PORT = os.environ.get("KAFKA_PORT", "9092")
 KAFKA_PROTO = os.environ.get("KAFKA_PROTO", "PLAINTEXT")
-KAFKA_LISTENER = (
-    os.environ.get("KAFKA_LISTENER") or f"{KAFKA_PROTO}://{KAFKA_HOST}:{KAFKA_PORT}"
-)
+KAFKA_LISTENER = os.environ.get("KAFKA_LISTENER") or f"{KAFKA_PROTO}://{KAFKA_HOST}:{KAFKA_PORT}"
 
 REDIS_COUNTER_HOST = os.environ.get("RIVER_REDIS_HOST", "river-redis")
 REDIS_COUNTER_PORT = os.environ.get("RIVER_REDIS_PORT", 6379)
