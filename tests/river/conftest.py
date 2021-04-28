@@ -67,6 +67,7 @@ def concept_maps_factory(fhir_client: SyncFHIRClient):
                 json=resource,
                 headers={"Authorizarion": settings.FHIR_API_AUTH_TOKEN},
             )
+        yield "OK"
 
     return _concept_maps_factory
 
