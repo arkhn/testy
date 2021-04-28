@@ -62,10 +62,11 @@ def concept_maps_factory(fhir_client: SyncFHIRClient):
         for entry in bundle.get("entry", []):
             resource = entry.get("resource")
             resource_type = resource.get("resourceType")
-            response = requests.post(
-                f"{settings.FHIR_API_URL}/{resource_type}",
+            resource_id = resource.get("id")
+            response = requests.put(
+                f"{settings.FHIR_API_URL}/{resource_type}/{resource_id}",
                 json=resource,
-                headers={"Authorizarion": settings.FHIR_API_AUTH_TOKEN},
+                headers={"Authorization": settings.FHIR_API_AUTH_TOKEN},
             )
         yield "OK"
 
