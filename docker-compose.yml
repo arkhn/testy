@@ -10,7 +10,7 @@ services:
     restart: on-failure
     environment:
       - FHIR_API_URL=${FHIR_API_URL:-jpaltime:8080/hapi/fhir}
-      - FHIR_API_AUTH_TOKEN={FHIR_API_AUTH_TOKEN:-none}
+      - FHIR_API_AUTH_TOKEN={FHIR_API_AUTH_TOKEN}
       - DEBUG=${DEBUG:-True}
       - KAFKA_HOST=${KAFKA_HOST:-kafka}
       - KAFKA_PORT=${KAFKA_PORT:-9092}
