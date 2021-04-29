@@ -106,13 +106,13 @@ def test_batch(pyrog_resources, batch):
 
 
 def test_batch_reference_binder(fhir_client: SyncFHIRClient):
-    result = (
+    bundle = (
         fhir_client.resources("Observation")
         .limit(settings.MAX_RESOURCE_COUNT)
         .include("Observation", "subject")
         .fetch_raw()
     )
-    for entry in [e for e in result.entry if e.search.mode == "match"]:
+    for entry in [e for e in bundle.entry if e.search.mode == "match"]:
         observation = entry.resource
         ref_id = observation.subject.reference.split("/")[1]
         assert (

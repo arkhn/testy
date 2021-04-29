@@ -22,6 +22,6 @@ REDIS_COUNTER_HOST = os.environ.get("RIVER_REDIS_HOST", "river-redis")
 REDIS_COUNTER_PORT = os.environ.get("RIVER_REDIS_PORT", 6379)
 REDIS_COUNTER_DB = os.environ.get("REDIS_COUNTER_DB", 2)
 
-BATCH_DURATION_TIMEOUT = float(os.environ.get("BATCH_DURATION_TIMEOUT", "600"))
+BATCH_DURATION_TIMEOUT = float(os.environ.get("BATCH_DURATION_TIMEOUT", "900"))
 
 MAX_RESOURCE_COUNT = int(os.environ.get("MAX_RESOURCE_COUNT", 10000))
