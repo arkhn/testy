@@ -106,14 +106,6 @@ def test_batch(pyrog_resources, batch):
 
 
 def test_batch_reference_binder(fhir_client: SyncFHIRClient):
-    def find_ref_in_bundle(bundle, resource_ref):
-        resource_id = resource_ref.split("/")[1]
-        for entry in [e for e in bundle.entry if e.search.mode == "include"]:
-            if entry.resource.id == resource_id:
-                return entry.resource
-        return None
-
-    # Check reference binding
     result = (
         fhir_client.resources("Observation")
         .limit(settings.MAX_RESOURCE_COUNT)
@@ -122,7 +114,12 @@ def test_batch_reference_binder(fhir_client: SyncFHIRClient):
     )
     for entry in [e for e in result.entry if e.search.mode == "match"]:
         observation = entry.resource
-        included_ref = find_ref_in_bundle(result, observation.subject.reference)
+        ref_id = observation.subject.reference.split("/")[1]
         assert (
-            included_ref is not None
-        ), f"missing referenced resource {observation.subject.reference}"
+            any(
+                entry.resource.id == ref_id
+                for entry in bundle.entry
+                if entry.search.mode == "include"
+            ),
+            f"missing referenced resource {observation.subject.reference}",
+        )

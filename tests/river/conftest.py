@@ -56,7 +56,7 @@ def credentials_factory(pyrog_client: PyrogClient):
 
 
 @pytest.fixture(scope="session")
-def concept_maps_factory(fhir_client: SyncFHIRClient):
+def concept_maps_factory():
     @contextlib.contextmanager
     def _concept_maps_factory(bundle):
         for entry in bundle.get("entry", []):
