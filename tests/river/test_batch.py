@@ -115,14 +115,11 @@ def test_batch_reference_binder(fhir_client: SyncFHIRClient):
     )
     for entry in [e for e in bundle.entry if e.search.mode == "match"]:
         observation = entry.resource
-        if "reference" in observation.subject:
-            print(observation.subject["reference"])
-            ref_id = observation.subject.reference.split("/")[1]
-            assert any(
-                entry.resource.id == ref_id for entry in bundle.entry if entry.search.mode == "include"
-            ), f"missing referenced resource {observation.subject.reference}"
-        else:
-            print(observation.subject)
-            fail = True
-    if fail:
-        raise Exception("fail")
+        if "reference" not in observation.subject:
+            raise Exception(
+                f"missing 'reference' attribute in observation.subject: {observation.subject}"
+            )
+        ref_id = observation.subject.reference.split("/")[1]
+        assert any(
+            entry.resource.id == ref_id for entry in bundle.entry if entry.search.mode == "include"
+        ), f"missing referenced resource {observation.subject.reference}"
