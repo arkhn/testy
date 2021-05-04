@@ -4296,6 +4296,71 @@
                     ]
                 },
                 {
+                    "id": "ckjl9h9mi1802264oc27s25176",
+                    "resourceId": "ckjl9h9mg1795264ocg8hgjezn",
+                    "createdAt": "2021-01-06T10:10:58.170Z",
+                    "updatedAt": "2021-01-06T10:10:58.172Z",
+                    "path": "subject.identifier.system",
+                    "definitionId": "string",
+                    "sliceName": null,
+                    "comments": [],
+                    "inputGroups": [
+                        {
+                            "id": "ckjl9h9mi1802364ocvcdsnd6n",
+                            "mergingScript": null,
+                            "attributeId": "ckjl9h9mi1802264oc27s25176",
+                            "updatedAt": "2021-01-06T10:10:58.172Z",
+                            "createdAt": "2021-01-06T10:10:58.170Z",
+                            "inputs": [
+                                {
+                                    "id": "ckjl9h9mi1802464ocutifvl5v",
+                                    "createdAt": "2021-01-06T10:10:58.170Z",
+                                    "script": null,
+                                    "staticValue": "http://terminology.arkhn.org/b8efd322-3e38-4072-9c68-e62e15d84d04",
+                                    "updatedAt": "2021-01-06T10:10:58.172Z",
+                                    "conceptMapId": null,
+                                    "sqlValue": null,
+                                    "inputGroupId": "ckjl9h9mi1802364ocvcdsnd6n"
+                                }
+                            ],
+                            "conditions": []
+                        }
+                    ]
+                },
+                {
+                    "id": "ckjl9h9m61770864oc62u81j55",
+                    "resourceId": "ckjl9h9mg1795264ocg8hgjezn",
+                    "createdAt": "2021-01-06T10:10:58.158Z",
+                    "updatedAt": "2021-01-06T10:10:58.160Z",
+                    "path": "subject.type",
+                    "definitionId": "uri",
+                    "sliceName": null,
+                    "comments": [],
+                    "inputGroups": [
+                        {
+                            "id": "ckjl9h9m61770964oc2m0254x5",
+                            "mergingScript": null,
+                            "attributeId": "ckjl9h9m61770864oc62u81j55",
+                            "updatedAt": "2021-01-06T10:10:58.160Z",
+                            "createdAt": "2021-01-06T10:10:58.158Z",
+                            "inputs": [
+                                {
+                                    "id": "ckjl9h9m61771064ocbdibylfs",
+                                    "createdAt": "2021-01-06T10:10:58.158Z",
+                                    "script": null,
+                                    "staticValue": "Patient",
+                                    "updatedAt": "2021-01-06T10:10:58.160Z",
+                                    "conceptMapId": null,
+                                    "inputGroupId": "ckjl9h9m61770964oc2m0254x5",
+                                    "sqlValue": null
+                                }
+                            ],
+                            "conditions": []
+                        }
+                    ]
+                },
+
+                {
                     "id": "ckjl9h9mi1802664oca2u4uxbr",
                     "resourceId": "ckjl9h9mg1795264ocg8hgjezn",
                     "createdAt": "2021-01-06T10:10:58.170Z",

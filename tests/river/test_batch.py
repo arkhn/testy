@@ -1,4 +1,5 @@
 from confluent_kafka.admin import AdminClient
+from fhirpy import SyncFHIRClient
 import logging
 import pytest
 import redis
@@ -75,7 +76,10 @@ def test_batch(pyrog_resources, batch):
     # which can be null if no record has been extracted. In this last case,
     # the loaded key won't exist.
     logger.debug(f"Processing {batch['id']} counter...")
-    counter = {k.decode("utf-8"): int(v) for k, v in redis_client.hgetall(f"batch:{batch['id']}:counter").items()}
+    counter = {
+        k.decode("utf-8"): int(v)
+        for k, v in redis_client.hgetall(f"batch:{batch['id']}:counter").items()
+    }
     logger.debug(f"Redis counter: {counter}")
     assert any(v != 0 for v in counter.values()), f"Counter is empty: {counter}"
     for key, value in counter.items():
@@ -101,19 +105,21 @@ def test_batch(pyrog_resources, batch):
     assert not set(batch_topics) & set(topics)
 
 
-def test_batch_reference_binder(fhirstore):
-    # Check reference binding
-    observations = fhirstore.db["Observation"]
-    patients = fhirstore.db["Patient"]
-    cursor = observations.find({})
-    for document in cursor:
-        if "http://hl7.org/fhir/StructureDefinition/bp" in document["meta"].get("profile", []):
-            # References on this profile aren't bound
-            continue
-        assert "reference" in document["subject"]
-        reference = document["subject"]["reference"].split("/")
-        assert reference[0] == "Patient", f"bad reference type. Expected 'Patient', got {reference[0]} in {reference}"
-        patient = patients.find_one(filter={"id": reference[1]})
-        assert patient, f"patient {reference[1]} not found"
-
-# TODO: check in elastic that references have been set
+def test_batch_reference_binder(fhir_client: SyncFHIRClient):
+    fail = False
+    bundle = (
+        fhir_client.resources("Observation")
+        .limit(settings.MAX_RESOURCE_COUNT)
+        .include("Observation", "subject")
+        .fetch_raw()
+    )
+    for entry in [e for e in bundle.entry if e.search.mode == "match"]:
+        observation = entry.resource
+        if "reference" not in observation.subject:
+            raise Exception(
+                f"missing 'reference' attribute in observation.subject: {observation.subject}"
+            )
+        ref_id = observation.subject.reference.split("/")[1]
+        assert any(
+            entry.resource.id == ref_id for entry in bundle.entry if entry.search.mode == "include"
+        ), f"missing referenced resource {observation.subject.reference}"

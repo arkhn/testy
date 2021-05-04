@@ -1,11 +1,11 @@
 import contextlib
 import json
 from pathlib import Path
+import requests
+
+from fhirpy import SyncFHIRClient
 
 import pytest
-from pymongo import MongoClient
-
-from fhirstore import FHIRStore
 
 from .. import settings
 from .utils.pyrog import PyrogClient
@@ -14,14 +14,8 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
 @pytest.fixture(scope="session")
-def fhirstore() -> FHIRStore:
-    mongo_client = MongoClient(
-        host=settings.MONGO_HOST,
-        port=settings.MONGO_PORT,
-        username=settings.MONGO_USER,
-        password=settings.MONGO_PASSWORD,
-    )
-    return FHIRStore(mongo_client, None, settings.MONGO_DB)
+def fhir_client() -> SyncFHIRClient:
+    return SyncFHIRClient(settings.FHIR_API_URL, authorization=settings.FHIR_API_AUTH_TOKEN)
 
 
 @pytest.fixture(scope="session")
@@ -62,10 +56,19 @@ def credentials_factory(pyrog_client: PyrogClient):
 
 
 @pytest.fixture(scope="session")
-def concept_maps_factory(fhirstore: FHIRStore):
+def concept_maps_factory():
     @contextlib.contextmanager
     def _concept_maps_factory(bundle):
-        yield fhirstore.upload_bundle(bundle)
+        for entry in bundle.get("entry", []):
+            resource = entry.get("resource")
+            resource_type = resource.get("resourceType")
+            resource_id = resource.get("id")
+            response = requests.put(
+                f"{settings.FHIR_API_URL}/{resource_type}/{resource_id}",
+                json=resource,
+                headers={"Authorization": settings.FHIR_API_AUTH_TOKEN},
+            )
+        yield "OK"
 
     return _concept_maps_factory
 
